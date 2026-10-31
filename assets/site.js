@@ -68,7 +68,7 @@
   function count(route) { var n = 0; kids(route).forEach(function (k) { n += 1 + count(k.route); }); return n; }
   function card(p) {
     var n = count(p.route);
-    return '<a class="card" href="' + U(p.route) + '"><span class="ct"><span class="ico">' + svg(p) + '</span><h3>' + esc(p.title) + '</h3></span>' +
+    return '<a class="card" href="' + U(p.route) + '"><span class="ct"><span class="ico' + (p.emblem ? ' logo' : '') + '">' + (p.emblem ? '<img src="' + ROOT + p.emblem.replace(/\.png$/, '-128.png') + '" alt="" width="128" height="128">' : svg(p)) + '</span><h3>' + esc(p.title) + '</h3></span>' +
       (p.desc || n ? '<p>' + esc(p.desc || n + ' pages in this section') + '</p>' : '') +
       '<span class="more"><span>' + (p.kind ? esc(p.kind) : n ? n + ' pages' : 'Open') + '</span>' + ARROW + '</span></a>';
   }
@@ -171,9 +171,9 @@
     var lay2 = $('.layout');
     function relItem(r) { var rt = typeof r === 'string' ? { r: r } : r, pg = P[rt.r.split('#')[0]]; return pg ? '<li><a href="' + U(rt.r) + '">' + esc(rt.l || pg.title) + '</a></li>' : ''; }
     var relL = (cur.related || []).map(relItem).join(''), others = kids(cur.parent).map(function (k) { return '<li><a href="' + U(k.route) + '"' + (k.route === cur.route ? ' aria-current="page"' : '') + '>' + esc(k.title) + '</a></li>'; }).join('');
-    var emb = cur.emblem ? '<img src="' + ROOT + cur.emblem + '" alt="">' : svg(cur);
+    var emb = cur.emblem ? '<img src="' + ROOT + cur.emblem + '" alt="' + esc(cur.title) + ' logo" width="512" height="512">' : svg(cur);
     lay2.classList.add('org');
-    lay2.insertAdjacentHTML('beforeend', '<aside class="rail" aria-label="Organization profile"><div class="box"><div class="e">' + emb + '</div></div>' +
+    lay2.insertAdjacentHTML('beforeend', '<aside class="rail" aria-label="Organization profile"><div class="box"><div class="e' + (cur.emblem ? ' logo' : '') + '">' + emb + '</div></div>' +
       (relL ? '<div class="box"><h2>Related pages</h2><ul>' + relL + '</ul></div>' : '') +
       (heads.length > 1 ? '<div class="box"><h2>On this page</h2><ul>' + toc + '</ul></div>' : '') +
       '<div class="box"><h2>Organizations</h2><ul>' + others + '</ul></div></aside>');

@@ -873,6 +873,7 @@ var SITE = {
    "parent": "organizations",
    "layout": "organization",
    "icon": "trophy",
+   "emblem": "assets/logos/pokemon-league.png",
    "desc": "The Stellara Pokémon League is the governing body responsible for overseeing the region's eighteen Pokémon Gyms and the prestigious Champion Cup.",
    "related": [
     "activities/pokemon-league",
@@ -885,6 +886,7 @@ var SITE = {
    "parent": "organizations",
    "layout": "organization",
    "icon": "flame",
+   "emblem": "assets/logos/stellara-trials-association.png",
    "desc": "The Stellara Trials Association (STA) is an independent organization responsible for overseeing the prestigious Stellara Trials, a series of extraordinary challenges…",
    "related": [
     "activities/stellara-trials"
@@ -896,6 +898,7 @@ var SITE = {
    "parent": "organizations",
    "layout": "organization",
    "icon": "mask",
+   "emblem": "assets/logos/team-crux.png",
    "desc": "Team Crux is one of the most notorious criminal organizations operating within the Stellara Region.",
    "heads": [
     "Overview",

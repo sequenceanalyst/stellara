@@ -48,6 +48,10 @@ The Stellara Pokémon League page has a "Gyms and Badges" section of 18 flip car
 
 The Stellara Trials page has eight Trial Crest flip cards in the Trial Crests section. Like the Gym badges, this is not in the architecture document; the crest art was supplied by the owner (images in `assets/crests/`). The back of each card repeats the stage and its minimum requirement from the Eligibility section. The cards use the same script as the Gym badges (`assets/gyms.js`).
 
+## Organization logos
+
+The Pokémon League, Stellara Trials Association and Team Crux pages show the logos the owner supplied (`assets/logos/`, 512px for the profile rail and 128px for the cards). Like the badges and crests, they are not in the architecture document. The artwork is dark navy, red and black, so it sits on a light plate. Talas Company has no logo yet and shows a drawn icon; to add one, put the PNG in `assets/logos/` and add `emblem: "assets/logos/talas-company.png"` and a 128px copy named `talas-company-128.png` to its entry in `assets/site-data.js`. The logos are rasterized, not vector, so they get soft if shown much larger than about 512px.
+
 ## Callouts and key points
 
 On rules and organization pages, the site turns text that is already bold into extras, so writers only need to use bold for emphasis:

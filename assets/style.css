@@ -431,3 +431,10 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 .fl.crests .fcb .bk .sg{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--t);border:1.5px solid var(--t);padding:0 9px}
 .fl.crests .fcb .bk .rq{font-size:13.5px;line-height:1.5;color:var(--tx);max-width:20ch}
 @media(max-width:860px){.fl.crests{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+
+/* organization logos: the artwork is dark navy, red and black, so it sits on a light plate */
+.rail .box .e.logo{background:#eef4f4;padding:16px;height:170px}
+.rail .box .e.logo img{width:auto;max-width:100%;height:138px;object-fit:contain}
+.ico.logo{background:#eef4f4;border-color:#c9d8d8;padding:3px}
+.ico.logo img{width:100%;height:100%;object-fit:contain;display:block}
+.cards.dir .ico.logo{padding:2px}
