@@ -193,7 +193,7 @@
       var rt = typeof r === 'string' ? { r: r } : r, pg = P[rt.r.split('#')[0]];
       return pg ? '<li><a href="' + U(rt.r) + '"><b>' + esc(rt.l || pg.title) + '</b><span>' + esc(chain(pg).slice(0, -1).map(function (c) { return c.title; }).join(' / ') || 'Home') + '</span></a></li>' : ''; }).join('') + '</ul></aside>');
   }
-  if (main && cur && cur.layout !== 'category' && cur.layout !== 'directory' && cur.layout !== 'sitemap') {
+  if (main && cur && cur.layout !== 'category' && cur.layout !== 'directory' && cur.layout !== 'sitemap' && cur.layout !== 'notfound') {
     var sib = kids(cur.parent), i = sib.indexOf(cur), pv = sib[i - 1], nx = sib[i + 1], par = P[cur.parent];
     if (sib.length > 1 && cur.layout === 'location') main.insertAdjacentHTML('beforeend', '<nav class="pager pc" aria-label="Next and previous places">' +
       (pv ? '<a href="' + U(pv.route) + '"><small>Previous</small><b>' + esc(pv.title) + '</b></a>' : par ? '<a href="' + U(par.route) + '"><small>Up</small><b>' + esc(par.title) + '</b></a>' : '<span></span>') +
@@ -219,7 +219,7 @@
     q.addEventListener('input', function () {
       var v = q.value.trim().toLowerCase();
       if (!v) { qr.hidden = true; return; }
-      var hits = S.pages.filter(function (p) { return (p.title + ' ' + (p.desc || '') + ' ' + (p.heads || []).join(' ')).toLowerCase().indexOf(v) > -1; }).slice(0, 8);
+      var hits = S.pages.filter(function (p) { return p.layout !== 'notfound' && (p.title + ' ' + (p.desc || '') + ' ' + (p.heads || []).join(' ')).toLowerCase().indexOf(v) > -1; }).slice(0, 8);
       qr.innerHTML = hits.length ? hits.map(function (p) { return '<li><a href="' + U(p.route) + '"><b>' + esc(p.title) + '</b><span>' + esc((chain(p)[0] || p).title) + '</span></a></li>'; }).join('') : '<li class="none">No pages match.</li>';
       qr.hidden = false;
     });

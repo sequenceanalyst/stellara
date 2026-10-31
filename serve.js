@@ -5,5 +5,5 @@ const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 
 http.createServer((q, r) => {
   let p = decodeURIComponent(q.url.split('?')[0]); let f = path.join(root, p); if (!f.startsWith(root)) { r.writeHead(403); return r.end(); }
   if (p.endsWith('/')) f = path.join(f, 'index.html');
-  fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); return r.end('Not found'); } r.writeHead(200, { 'Content-Type': types[path.extname(f)] || 'application/octet-stream' }); r.end(d); });
+  fs.readFile(f, (e, d) => { if (e) { /* like GitHub Pages: a missing address shows 404.html with a 404 status */ return fs.readFile(path.join(root, '404.html'), (e2, d2) => { r.writeHead(404, { 'Content-Type': types['.html'] }); r.end(e2 ? 'Not found' : d2); }); } r.writeHead(200, { 'Content-Type': types[path.extname(f)] || 'application/octet-stream' }); r.end(d); });
 }).listen(port, () => console.log('Stellara preview on http://localhost:' + port));

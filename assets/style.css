@@ -387,3 +387,8 @@ body[data-layout="location"] .doc a{color:var(--cy);text-underline-offset:3px}
   .lrow:not(:has(.nm small)){grid-template-columns:36px 1fr auto auto;align-items:center}
   .lrow:not(:has(.nm small)) .ctl{grid-column:auto}
 }
+
+/* custom 404 page */
+body[data-layout="notfound"] .side,body[data-layout="notfound"] .mtoc{display:none}
+body[data-layout="notfound"] .doc>p.lead-p{font-size:1.15rem;color:#fff;max-width:60ch}
+body[data-layout="notfound"] .tiles{margin-top:26px}

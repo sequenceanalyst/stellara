@@ -915,6 +915,13 @@ var SITE = {
    "layout": "sitemap",
    "desc": "Every page on the site, grouped by section.",
    "hidden": true
+  },
+  {
+   "route": "404",
+   "title": "Page not found",
+   "parent": "",
+   "layout": "notfound",
+   "hidden": true
   }
  ]
 };
