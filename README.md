@@ -79,6 +79,8 @@ Pokémart "Purchase Process" (source heading: "Overview"), Evolution "Tier Requi
 
 **Source language kept as written.** The text still says "thread", "board" and "the MOD REQUEST section of the Discord" in several places. Wording is not changed, because the architecture document asks that rules not change silently. Editing it is an editorial decision.
 
+**Added at the owner's request, not in the architecture document:** the `getting-started/about` page (About Stellara). It holds the four introduction paragraphs that used to be on the home page. The Stellara Region page still shows the same four paragraphs, so the text appears on two pages. The home banner line is set by `home.lead` in `assets/site-data.js` (it is written by the generator, so change it there if you edit the file directly).
+
 **Open editorial items for you to decide:**
 1. The League complex page (from the document's Towns and Cities section) calls the tournament the "Masters' Tournament". The League rules page calls it the "Champion Cup". Both are published as written.
 2. Tier advancement costs appear twice, on Pokémon Progression and on the Pokémart. The values match. The Progression table also lists Beginner as "Starting Tier"; the Pokémart table does not list Beginner.

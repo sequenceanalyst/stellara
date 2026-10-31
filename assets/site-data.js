@@ -8,7 +8,7 @@ var SITE = {
  "discord": "",
  "footer": "Stellara is a fan-made Pokémon roleplay. Pokémon is a trademark of Nintendo, Game Freak and Creatures. This site is not affiliated with them.",
  "home": {
-  "lead": "The Stellara Region is a land of extraordinary diversity, where sprawling metropolitan cities, breathtaking natural landscapes, and remarkable technological advancements exist alongside one another."
+  "lead": "An Original Pokemon RP."
  },
  "pages": [
   {
@@ -59,6 +59,7 @@ var SITE = {
    "nav": "Stellara Region",
    "icon": "mount",
    "related": [
+    "getting-started/about",
     "pokemon/catching"
    ]
   },
@@ -71,6 +72,16 @@ var SITE = {
    "icon": "people",
    "heads": [
     "Team Crux in brief"
+   ]
+  },
+  {
+   "route": "getting-started/about",
+   "title": "About Stellara",
+   "parent": "getting-started",
+   "layout": "article",
+   "desc": "The Stellara Region is a land of extraordinary diversity, where sprawling metropolitan cities, breathtaking natural landscapes, and remarkable technological…",
+   "related": [
+    "region"
    ]
   },
   {
