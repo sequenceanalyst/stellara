@@ -44,6 +44,10 @@ The document writes prices as both EXP and XP. The ledger shows each price in th
 
 The Stellara Pokémon League page has a "Gyms and Badges" section of 18 flip cards. It is not in the architecture document (which lists Gym-by-Gym profiles and badges as out of scope for V4); the Gym list and the badge art were supplied by the owner. The badge images are in `assets/badges/`. The Gym list (town or city and type) and the badge names are in `build-v4.js`-generated HTML; to change one Gym, edit its card in `activities/pokemon-league/index.html`. The six places the owner's list called "City" (Musca, Hamal, Shaula, Menkent, Celaeno, Sabik) are "Town" on this site, and the cards link to the existing town pages. Pictures of each town or city can be added with `art` in `assets/site-data.js` (see Location pages).
 
+## Trial Crests
+
+The Stellara Trials page has eight Trial Crest flip cards in the Trial Crests section. Like the Gym badges, this is not in the architecture document; the crest art was supplied by the owner (images in `assets/crests/`). The back of each card repeats the stage and its minimum requirement from the Eligibility section. The cards use the same script as the Gym badges (`assets/gyms.js`).
+
 ## Callouts and key points
 
 On rules and organization pages, the site turns text that is already bold into extras, so writers only need to use bold for emphasis:
