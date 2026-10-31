@@ -40,6 +40,10 @@ The document writes prices as both EXP and XP. The ledger shows each price in th
 - **Location pages** (layout `location`): the hero shows the place type in its corner. To give a place its own picture, add `art: "assets/art/vaisera-mountains.webp"` to its entry in `site-data.js` and put the image in `assets/art/`. The hero then shows that picture instead of the banner. Below the text, "Within this location" and "Places mentioned" are built from the links in the text, followed by previous and next cards.
 - **Organization pages** (layout `organization`): the right-hand rail shows an emblem, related pages, the page contents and the other organizations. To use a real emblem, add `emblem: "assets/art/team-crux.webp"` to the entry. On Team Crux, the five ranks are drawn as steps along a line.
 
+## Gym badges
+
+The Stellara Pokémon League page has a "Gyms and Badges" section of 18 flip cards. It is not in the architecture document (which lists Gym-by-Gym profiles and badges as out of scope for V4); the Gym list and the badge art were supplied by the owner. The badge images are in `assets/badges/`. The Gym list (town or city and type) and the badge names are in `build-v4.js`-generated HTML; to change one Gym, edit its card in `activities/pokemon-league/index.html`. The six places the owner's list called "City" (Musca, Hamal, Shaula, Menkent, Celaeno, Sabik) are "Town" on this site, and the cards link to the existing town pages. Pictures of each town or city can be added with `art` in `assets/site-data.js` (see Location pages).
+
 ## Callouts and key points
 
 On rules and organization pages, the site turns text that is already bold into extras, so writers only need to use bold for emphasis:

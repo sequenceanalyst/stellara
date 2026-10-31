@@ -405,6 +405,7 @@ var SITE = {
    "icon": "trophy",
    "desc": "The Stellara Pokémon League has a reputation for being one of the most difficult Pokémon Leagues to complete.",
    "heads": [
+    "Gyms and Badges",
     "Gym Challenges",
     "Becoming a Gym Leader",
     "The Champion Cup"

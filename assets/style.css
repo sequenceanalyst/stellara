@@ -392,3 +392,29 @@ body[data-layout="location"] .doc a{color:var(--cy);text-underline-offset:3px}
 body[data-layout="notfound"] .side,body[data-layout="notfound"] .mtoc{display:none}
 body[data-layout="notfound"] .doc>p.lead-p{font-size:1.15rem;color:#fff;max-width:60ch}
 body[data-layout="notfound"] .tiles{margin-top:26px}
+
+/* ---------- Gym badge flip cards (Pokemon League page) ---------- */
+.doc p.hint{margin:0 0 14px;color:var(--mu);font-size:14.5px}
+.fl{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:0 0 8px}
+.fc{position:relative;aspect-ratio:3/4}
+.fcb{display:block;width:100%;height:100%;perspective:700px;border:0;background:none;padding:0;cursor:pointer;font:inherit;color:inherit}
+.fcb .in{display:block;position:relative;width:100%;height:100%;transition:transform .5s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.fcb[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.fcb .f,.fcb .bk{display:grid;position:absolute;inset:0;backface-visibility:hidden;border:2px solid var(--bd);place-items:center;overflow:hidden}
+.fcb .f{background:radial-gradient(circle at 50% 38%,#12353d,#07141a 72%);padding:16% 14% 26%}
+.fcb .f img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 6px rgba(0,0,0,.55))}
+.fcb .f::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.14) 50%,transparent 60%) -150% 0/60% 100% no-repeat;transition:background-position .6s}
+.fcb:hover .f::after,.fcb:focus-visible .f::after{background-position:250% 0}
+.fcb .f>span{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx)}
+.fcb .bk{transform:rotateY(180deg);background:linear-gradient(170deg,#0c262d,#07141a);border-color:var(--t);align-content:center;gap:10px;text-align:center;padding:10px 10px 40%}
+.fcb .bk b{font:400 .95rem/1.1 var(--display);text-transform:uppercase;color:#fff}
+.fc .ty{display:inline-flex;align-items:center;gap:6px;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx);border:1.5px solid var(--t);padding:0 8px;background:rgba(3,10,16,.55)}
+.fc .ty::before{content:"";width:8px;height:8px;background:var(--t)}
+.fc .loc{position:absolute;left:8%;right:8%;bottom:9%;z-index:2;display:flex;gap:6px;align-items:center;justify-content:center;font:500 12px var(--mono);color:var(--cy);border:2px solid var(--bd);background:var(--pn);padding:3px 6px;text-decoration:none;text-align:center}
+.fc .loc[hidden]{display:none}
+.fc .loc:hover{border-color:var(--g)}
+.fc .loc svg{width:14px;height:14px;flex:none;color:var(--g);stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.doc ul.plain{max-width:none}
+@media(max-width:1000px){.fl{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:640px){.fl{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.fc .loc{font-size:11px;padding:3px 4px}}
+@media(prefers-reduced-motion:reduce){.fcb .in{transition:none}.fcb .f::after{display:none}}
