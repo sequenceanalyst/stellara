@@ -438,3 +438,5 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 .ico.logo{background:#eef4f4;border-color:#c9d8d8;padding:3px}
 .ico.logo img{width:100%;height:100%;object-fit:contain;display:block}
 .cards.dir .ico.logo{padding:2px}
+/* Gym badge cards at the Trial Crest card size: keep room on the back for the place link */
+.fl.crests.gyms .fcb .bk{padding-bottom:64px}
