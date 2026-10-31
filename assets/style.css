@@ -440,3 +440,13 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 .cards.dir .ico.logo{padding:2px}
 /* Gym badge cards at the Trial Crest card size: keep room on the back for the place link */
 .fl.crests.gyms .fcb .bk{padding-bottom:64px}
+
+/* Character Creation: the character sheet fields as a two-column list */
+.doc dl.fields{margin:22px 0 0;border:2px solid var(--bd);background:var(--pn)}
+.doc dl.fields>div{display:grid;grid-template-columns:200px 1fr;gap:6px 24px;padding:14px 20px;border-bottom:1px solid var(--bd)}
+.doc dl.fields>div:last-child{border-bottom:0}
+.doc dl.fields dt{padding-top:3px;font:600 13px/1.5 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#fff}
+.doc dl.fields dd{margin:0;color:var(--tx)}
+.doc dl.fields .opt{display:inline-block;margin-left:8px;padding:0 7px;border:1.5px solid var(--bd);font:500 10.5px var(--mono);letter-spacing:.08em;color:var(--mu);vertical-align:1px}
+@media (max-width:640px){.doc dl.fields>div{grid-template-columns:1fr;gap:2px;padding:12px 16px}}
+.doc dl.fields + p{margin-top:20px}

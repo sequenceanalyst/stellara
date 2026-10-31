@@ -93,6 +93,8 @@ Pokémart "Purchase Process" (source heading: "Overview"), Evolution "Tier Requi
 
 **Added at the owner's request, not in the architecture document:** the `getting-started/about` page (About Stellara). It holds the four introduction paragraphs that used to be on the home page. The Stellara Region page still shows the same four paragraphs, so the text appears on two pages. The home banner line is set by `home.lead` in `assets/site-data.js` (it is written by the generator, so change it there if you edit the file directly).
 
+**Also added at the owner's request:** the `getting-started/character-creation` page (Character Creation), written from text supplied after the V4 document. It lists the character sheet fields as a `<dl class="fields">` list; the two optional fields carry an "Optional" tag. It sits after Roleplay Rules in Getting Started. Editorial note: the source sentence reads "Google Docs; etc." (kept as supplied).
+
 **Open editorial items for you to decide:**
 1. The League complex page (from the document's Towns and Cities section) calls the tournament the "Masters' Tournament". The League rules page calls it the "Champion Cup". Both are published as written.
 2. Tier advancement costs appear twice, on Pokémon Progression and on the Pokémart. The values match. The Progression table also lists Beginner as "Starting Tier"; the Pokémart table does not list Beginner.

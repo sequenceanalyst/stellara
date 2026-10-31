@@ -107,6 +107,22 @@ var SITE = {
    ]
   },
   {
+   "route": "getting-started/character-creation",
+   "title": "Character Creation",
+   "parent": "getting-started",
+   "layout": "article",
+   "icon": "people",
+   "desc": "Players may create their character sheets using Discord, Google Docs; etc.",
+   "heads": [
+    "Character Information",
+    "Pokémon Template"
+   ],
+   "related": [
+    "pokemon/trainer-tiers",
+    "getting-started/morphs"
+   ]
+  },
+  {
    "route": "getting-started/starters",
    "title": "Starter Pokémon",
    "parent": "getting-started",
@@ -144,7 +160,8 @@ var SITE = {
     "Additional Restrictions"
    ],
    "related": [
-    "organizations/team-crux"
+    "organizations/team-crux",
+    "getting-started/character-creation"
    ]
   },
   {
@@ -184,7 +201,8 @@ var SITE = {
     "Ranking Up"
    ],
    "related": [
-    "pokemon/tiers"
+    "pokemon/tiers",
+    "getting-started/character-creation"
    ]
   },
   {
