@@ -520,6 +520,7 @@ var SITE = {
    "desc": "The Stellara Pokémon Exchange is an organization that specializes in the adoption, sale and trading of Pokémon.",
    "heads": [
     "Adoption",
+    "Available Pokémon",
     "Selling",
     "Appraisals",
     "Restrictions"
@@ -534,6 +535,7 @@ var SITE = {
    "desc": "The Black Market is an underground network involved in the illegal sale, purchase and trading of Pokémon.",
    "heads": [
     "Services",
+    "Available Listings",
     "Restrictions",
     "Narrative Risks"
    ]

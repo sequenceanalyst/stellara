@@ -104,3 +104,5 @@ Pokémart "Purchase Process" (source heading: "Overview"), Evolution "Tier Requi
 6. The four sub-areas (Veyra Moorlands, Salaris Flats, Borealis Tundra, Nymira Mangroves) appear as linked mentions inside their parent location page, not as separate pages.
 
 **Cross-links** are listed in each page's `related` entry in `site-data.js`. Links inside location text point to other documented locations and organizations by name.
+
+**Pokémon listings (Exchange and Black Market).** The Exchange page has an "Available Pokémon" kiosk and the Black Market page has an "Available Listings" terminal. Both are drawn by `assets/listings.js` from `assets/listings-data.js`; to change a listing, edit that data file (the fields are explained at its top). Sprites go in `assets/sprites/` and are named in the listing's `sprite` field. The listings are sample data until the `sample: true` line is removed. The Adopt and Make an offer buttons only show the `how` message for now; real behaviour (a copy-request button, a Discord link) can be added later in `assets/listings.js`.
