@@ -461,6 +461,7 @@ var SITE = {
    "icon": "flag",
    "desc": "Missions are adventures and assignments that Trainers can undertake to earn EXP, obtain valuable items, encounter rare Pokémon and develop their characters.",
    "heads": [
+    "Available Missions",
     "Mission Difficulty",
     "Mission Requirements",
     "Undertaking Missions",
