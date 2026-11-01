@@ -15,11 +15,19 @@
    Any other type still works; it just uses a plain colour.
 
    While "sample" is true, each screen shows a SAMPLE LISTINGS tag. Delete that line once the listings are real.
-   "how" is the message shown when someone presses the Adopt or Make an offer button. */
+   Prices are in EXP.
+   Each market also has:
+     forum  the link to its Discord forum channel
+     title  the title the Copy title button gives the player (for a new forum post)
+     msg    the message the Copy message button gives the player
+     msgFree  the message used instead when the price is not a number (for example "A favor")
+   In title, msg and msgFree, {name} {species} {price} and {id} are replaced with that listing's details. */
 window.STELLARA_LISTINGS = {
   sample: true,
   exchange: {
-    how: 'Adoptions are arranged in the Stellara Discord. Post your request there and name the Pokémon you want.',
+    forum: 'https://discord.com/channels/1566310030675026010/1566509145987878954',
+    title: 'Adopt: {name} ({species})',
+    msg: 'I\x27d like to adopt {species} listed at {price} EXP. Character: [character name here].',
     items: [
       { n: 'Biscuit', s: 'Eevee', tier: 'Beginner', t: ['Normal'], ab: 'Run Away', g: 'Female', h: '0.3 m', w: '6.5 kg', mv: ['Tackle', 'Tail Whip', 'Sand Attack', 'Growl'], p: 'Friendly and curious. Follows anyone who might be carrying snacks.', aq: 'Surrendered by a previous Trainer and health-checked by the Exchange.', pr: '1,200' },
       { n: 'Ember', s: 'Growlithe', tier: 'Rookie', t: ['Fire'], ab: 'Intimidate', g: 'Male', h: '0.7 m', w: '19 kg', mv: ['Bite', 'Ember', 'Roar', 'Odor Sleuth'], p: 'Loyal and protective, with a loud bark for such a young Pokémon.', aq: 'Adopted into the Exchange after its Trainer relocated.', pr: '3,400' },
@@ -28,7 +36,10 @@ window.STELLARA_LISTINGS = {
     ]
   },
   blackMarket: {
-    how: 'Offers are made in the Stellara Discord. Post yours there and name the listing number.',
+    forum: 'https://discord.com/channels/1566310030675026010/1566509179965800558',
+    title: 'Offer: {id} {name} ({species})',
+    msg: 'I\x27d like to make an offer on {species}, listing {id}, listed at {price} EXP. Character: [character name here].',
+    msgFree: 'I\x27d like to hear the terms for {species}, listing {id}. Character: [character name here].',
     items: [
       { id: '#0417', n: 'Gravel', s: 'Larvitar', tier: 'Experienced', t: ['Rock', 'Ground'], ab: 'Guts', g: 'Male', h: '0.6 m', w: '72 kg', mv: ['Bite', 'Sandstorm', 'Screech', 'Rock Slide'], p: 'Wary and quick to hiss at strangers. Flinches at sudden movement.', aq: 'Source withheld by the dealer.', pr: '14,500', risk: ['Mistreatment', 'Counterfeit Documentation'] },
       { id: '#0423', n: 'Dune', s: 'Gible', tier: 'Great', t: ['Dragon', 'Ground'], ab: 'Sand Veil', g: 'Female', h: '0.7 m', w: '20.5 kg', mv: ['Dragon Rage', 'Sand Attack', 'Dig', 'Bite'], p: 'Restless and fierce, with a habit of digging out of any enclosure.', aq: 'Source withheld by the dealer.', pr: '18,000', risk: ['Stolen Pokémon'] },

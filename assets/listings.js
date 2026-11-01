@@ -39,20 +39,39 @@
   function frame(inner, cls) { return '<div class="l-dev l-tab"><div class="l-scr ' + cls + '">' + inner + '</div></div>'; }
   function empty(msg) { return '<div class="l-empty">' + msg + '</div>'; }
   function sample(on) { return on ? '<span class="l-sample">Sample listings</span>' : ''; }
-  function howBlock(text) { return '<p class="l-how" role="status" hidden>' + esc(text) + '</p>'; }
+  /* the request panel: copy a title and a message, then open the Discord forum and paste them into a new post */
+  function fill(tpl, d) { return String(tpl || '').replace(/\{(name|species|price|id)\}/g, function (m, k) { return { name: d.n, species: d.s, price: d.pr, id: d.id || '' }[k]; }); }
+  function requestBlock(cfg, d) {
+    var free = !/^[\d,.\s]+$/.test(String(d.pr)), title = fill(cfg.title, d), msg = fill(free && cfg.msgFree ? cfg.msgFree : cfg.msg, d);
+    function row(label, text, k) { return '<div class="l-cp"><div class="l-lab">' + label + '</div><div class="l-cpr"><code data-t="' + k + '">' + esc(text) + '</code><button class="l-btn" data-copy="' + k + '">Copy</button></div></div>'; }
+    return '<div class="l-how" role="group" aria-label="Request this listing" hidden><div class="l-steps"><span><b>1</b>Copy the title and the message below.</span><span><b>2</b>Open the forum and press Create Post.</span><span><b>3</b>Paste them in and fill in your character\'s name.</span></div>' + row('Post title', title, 't') + row('Message', msg, 'm') +
+      (cfg.forum ? '<a class="l-btn l-p l-go" href="' + esc(cfg.forum) + '" target="_blank" rel="noopener">Open the Discord forum</a>' : '') + '<p class="l-ok2" role="status" aria-live="polite"></p></div>';
+  }
   function toggleHow(root) { var h = root.querySelector('.l-how'); h.hidden = !h.hidden; }
+  function copyText(text, done) {
+    function legacy() { var t = document.createElement('textarea'); t.value = text; t.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(t); t.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} t.remove(); done(ok); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, legacy); else legacy();
+  }
+  function wireCopy(host) {
+    [].forEach.call(host.querySelectorAll('[data-copy]'), function (b) {
+      b.onclick = function () {
+        var text = host.querySelector('code[data-t="' + b.dataset.copy + '"]').textContent, note = host.querySelector('.l-ok2');
+        copyText(text, function (ok) { b.textContent = ok ? 'Copied' : 'Copy failed'; note.textContent = ok ? 'Copied to your clipboard.' : 'Copying was blocked. Select the text and copy it yourself.'; setTimeout(function () { b.textContent = 'Copy'; note.textContent = ''; }, 2200); });
+      };
+    });
+  }
 
   /* Exchange kiosk */
   function exchange(host, cfg) {
     var items = cfg.items || [], i = 0, svc = 'Adopt', showHow = false;
-    var SERVICE_TEXT = { Sell: 'Submit a Pokémon for evaluation and receive an offer in Pokédollars. You may accept or decline.', Appraise: 'Present a Pokémon for evaluation and receive potential trade offers. You may accept one or reject them all.' };
+    var SERVICE_TEXT = { Sell: 'Submit a Pokémon for evaluation and receive an offer in EXP. You may accept or decline.', Appraise: 'Present a Pokémon for evaluation and receive potential trade offers. You may accept one or reject them all.' };
     function draw() {
       if (!items.length) { host.innerHTML = frame(status('STELLARA POKÉMON EXCHANGE', 'Facility terminal') + empty('No Pokémon are listed right now.'), 'l-ex'); return; }
       var d = items[i];
       var detail = svc === 'Adopt' ?
         '<div>' + sprite(d) + '<div class="l-ok">' + CHECK + 'Health checked</div></div><div><h4>' + esc(d.n) + '</h4><div class="l-sp">' + esc(d.s) + '</div>' + fields(d) +
         '<div style="margin-top:12px">' + moves(d) + '</div><div style="margin-top:12px"><div class="l-lab">Personality</div><p class="l-txt">' + esc(d.p) + '</p></div><div style="margin-top:10px"><div class="l-lab">Acquisition</div><p class="l-txt">' + esc(d.aq) + '</p></div></div>' +
-        '<div class="l-buy"><div class="l-price">' + esc(d.pr) + '<small>Pokédollars</small></div><div><button class="l-btn l-p" data-act="how">Adopt ' + esc(d.n) + '</button></div></div>' + howBlock(cfg.how)
+        '<div class="l-buy"><div class="l-price">' + esc(d.pr) + '<small>EXP</small></div><div><button class="l-btn l-p" data-act="how">Adopt ' + esc(d.n) + '</button></div></div>' + requestBlock(cfg, d)
         : '<div class="l-svcnote"><div><div class="l-lab">' + svc + '</div><p class="l-txt">' + SERVICE_TEXT[svc] + '</p></div></div>';
       host.innerHTML = frame(status('STELLARA POKÉMON EXCHANGE', DATA.sample ? sample(true) : 'Facility terminal') +
         '<div class="l-head"><h3>Available Pokémon</h3><div class="l-svc" role="group" aria-label="Service">' + ['Adopt', 'Sell', 'Appraise'].map(function (s) { return '<button class="' + (s === svc ? 'l-on' : '') + '" data-s="' + s + '" aria-pressed="' + (s === svc) + '">' + s + '</button>'; }).join('') + '</div></div>' +
@@ -61,7 +80,7 @@
       watchImages(host);
       [].forEach.call(host.querySelectorAll('.l-li'), function (b) { b.onclick = function () { i = +b.dataset.i; showHow = false; draw(); }; });
       [].forEach.call(host.querySelectorAll('.l-svc button'), function (b) { b.onclick = function () { svc = b.dataset.s; draw(); }; });
-      var a = host.querySelector('[data-act=how]'); if (a) a.onclick = function () { toggleHow(host); };
+      var a = host.querySelector('[data-act=how]'); if (a) a.onclick = function () { toggleHow(host); }; wireCopy(host);
     }
     draw();
   }
@@ -80,12 +99,12 @@
         '<div style="margin-top:12px">' + moves(d) + '</div><div style="margin-top:12px"><div class="l-lab">Personality</div><p class="l-txt">' + esc(d.p) + '</p></div>' +
         '<div style="margin-top:10px"><div class="l-lab">Acquisition</div><button class="l-red" aria-expanded="false"><span class="l-bar3"></span><span class="l-rv">' + esc(d.aq) + '</span><span class="l-tg">Tap to reveal</span></button></div>' +
         '<div style="margin-top:12px"><div class="l-lab">Risks</div><div class="l-risks">' + risks + '</div></div></div>' +
-        '<div class="l-buy"><div class="l-price">' + esc(d.pr) + '<small>' + (free ? 'terms by the dealer' : 'Pokédollars') + '</small></div><div><button class="l-btn l-h" data-act="walk">Walk away</button> <button class="l-btn l-p" data-act="how">' + (free ? 'Hear the terms' : 'Make an offer') + '</button></div></div>' + howBlock(cfg.how) + '</div></div><div class="l-home"></div>', 'l-bm');
+        '<div class="l-buy"><div class="l-price">' + esc(d.pr) + '<small>' + (free ? 'terms by the dealer' : 'EXP') + '</small></div><div><button class="l-btn l-h" data-act="walk">Walk away</button> <button class="l-btn l-p" data-act="how">' + (free ? 'Hear the terms' : 'Make an offer') + '</button></div></div>' + requestBlock(cfg, d) + '</div></div><div class="l-home"></div>', 'l-bm');
       watchImages(host);
       [].forEach.call(host.querySelectorAll('.l-li'), function (b) { b.onclick = function () { i = +b.dataset.i; draw(true); }; });
       var r = host.querySelector('.l-red'); r.onclick = function () { var o = r.classList.toggle('l-open'); r.setAttribute('aria-expanded', o); r.querySelector('.l-tg').textContent = o ? 'Hide' : 'Tap to reveal'; };
       host.querySelector('[data-act=walk]').onclick = function () { i = (i + 1) % items.length; draw(true); };
-      host.querySelector('[data-act=how]').onclick = function () { toggleHow(host); };
+      host.querySelector('[data-act=how]').onclick = function () { toggleHow(host); }; wireCopy(host);
     }
     draw();
   }
