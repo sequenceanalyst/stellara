@@ -227,4 +227,19 @@
     document.addEventListener('click', function (e) { if (!e.target.closest('.search')) qr.hidden = true; });
   }
   document.title = (isHome ? S.name : title + ' | ' + S.name);
+
+  /* Wide view: pages with a console (the Exchange, Black Market and Missions lists) get a button that hides the left menu, so the console can use the full width. The choice is remembered. */
+  (function () {
+    var host = $('.lst, .msn'), lay = $('.layout');
+    if (!host || !lay || lay.classList.contains('one') || lay.classList.contains('org')) return;
+    function saved() { try { return localStorage.getItem('stellara-wide') === '1'; } catch (e) { return false; } }
+    function save(v) { try { localStorage.setItem('stellara-wide', v ? '1' : '0'); } catch (e) {} }
+    var bar = document.createElement('div'); bar.className = 'wv';
+    bar.innerHTML = '<button type="button" aria-pressed="false">Wide view</button>';
+    host.parentNode.insertBefore(bar, host);
+    var btn = bar.firstChild;
+    function set(on) { lay.classList.toggle('is-wide', on); btn.setAttribute('aria-pressed', on); btn.title = on ? 'Show the left menu again' : 'Hide the left menu to give the list more room'; }
+    btn.addEventListener('click', function () { var on = !lay.classList.contains('is-wide'); set(on); save(on); bar.scrollIntoView({ block: 'center' }); });
+    set(saved());
+  })();
 })();
