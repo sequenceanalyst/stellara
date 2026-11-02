@@ -691,3 +691,8 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 .layout.is-wide,.layout.is-wide.has-key{grid-template-columns:minmax(0,1fr)}
 .layout.is-wide .side,.layout.is-wide .key{display:none}
 @media(max-width:900px){.wv{display:none}}
+
+/* Gym badges: three per row (18 badges = six even rows), capped so the cards stay a sensible size */
+.fl.crests.gyms{grid-template-columns:repeat(3,minmax(0,1fr));max-width:780px}
+@media(max-width:860px){.fl.crests.gyms{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){.fl.crests.gyms{grid-template-columns:repeat(2,minmax(0,1fr))}}
