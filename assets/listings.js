@@ -16,9 +16,9 @@
   function types(d) { return (d.t || []).map(function (x) { return '<span class="l-chip" style="color:' + (T[x] || '#9fd3d9') + '">' + esc(x) + '</span>'; }).join(' '); }
   function fields(d) {
     var rows = [['Species', esc(d.s)], ['Tier', esc(d.tier)], ['Type', types(d)], ['Ability', esc(d.ab)], ['Gender', esc(d.g)], ['Height', esc(d.h)], ['Weight', esc(d.w)]];
-    return '<dl class="l-dl">' + rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>'; }).join('') + '</dl>';
+    return '<dl class="l-dl">' + rows.map(function (r, k) { return '<div style="--i:' + k + '"><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>'; }).join('') + '</dl>';
   }
-  function moves(d) { return '<div class="l-lab">Move list</div><div class="l-moves">' + (d.mv || []).map(function (m) { return '<span>' + esc(m) + '</span>'; }).join('') + '</div>'; }
+  function moves(d) { return '<div class="l-lab">Move list</div><div class="l-moves">' + (d.mv || []).map(function (m, k) { return '<span style="--i:' + k + '">' + esc(m) + '</span>'; }).join('') + '</div>'; }
   function status(l, r) { return '<div class="l-stat"><span>' + l + '</span><span>' + r + '</span></div>'; }
   function ripple(e) {
     var b = e.target.closest && e.target.closest('.lst button'); if (!b) return;
@@ -47,6 +47,13 @@
     return '<div class="l-how" role="group" aria-label="Request this listing" hidden><div class="l-steps"><span><b>1</b>Copy the title and the message below.</span><span><b>2</b>Open the forum and press Create Post.</span><span><b>3</b>Paste them in and fill in your character\'s name.</span></div>' + row('Post title', title, 't') + row('Message', msg, 'm') +
       (cfg.forum ? '<a class="l-btn l-p l-go" href="' + esc(cfg.forum) + '" target="_blank" rel="noopener">Open the Discord forum</a>' : '') + '<p class="l-ok2" role="status" aria-live="polite"></p></div>';
   }
+  /* the list slides in once, when the terminal first appears; picking a listing afterwards leaves it still */
+  function railIn(host, first) {
+    var rail = host.querySelector('.l-rail'); if (!rail) return;
+    [].forEach.call(rail.querySelectorAll('.l-li'), function (b, k) { b.style.setProperty('--i', Math.min(k, 10)); });
+    if (first) rail.classList.add('l-rin');
+  }
+  function pop(b) { b.classList.remove('l-pop'); void b.offsetWidth; b.classList.add('l-pop'); }
   function toggleHow(root) { var h = root.querySelector('.l-how'); h.hidden = !h.hidden; }
   function copyText(text, done) {
     function legacy() { var t = document.createElement('textarea'); t.value = text; t.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(t); t.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} t.remove(); done(ok); }
@@ -63,7 +70,7 @@
 
   /* Exchange kiosk */
   function exchange(host, cfg) {
-    var items = cfg.items || [], i = 0, svc = 'Adopt', showHow = false;
+    var items = cfg.items || [], i = 0, svc = 'Adopt', showHow = false, first = true, popSvc = '';
     var SERVICE_TEXT = { Sell: 'Submit a Pokémon for evaluation and receive an offer in EXP. You may accept or decline.', Appraise: 'Present a Pokémon for evaluation and receive potential trade offers. You may accept one or reject them all.' };
     function draw() {
       if (!items.length) { host.innerHTML = frame(status('STELLARA POKÉMON EXCHANGE', 'Facility terminal') + empty('No Pokémon are listed right now.'), 'l-ex'); return; }
@@ -77,9 +84,10 @@
         '<div class="l-head"><h3>Available Pokémon</h3><div class="l-svc" role="group" aria-label="Service">' + ['Adopt', 'Sell', 'Appraise'].map(function (s) { return '<button class="' + (s === svc ? 'l-on' : '') + '" data-s="' + s + '" aria-pressed="' + (s === svc) + '">' + s + '</button>'; }).join('') + '</div></div>' +
         '<div class="l-body"><div class="l-rail" role="group" aria-label="Listings">' + items.map(function (x, k) { return '<button class="l-li" aria-pressed="' + (k === i) + '" data-i="' + k + '">' + sprite(x, 1) + '<span><b>' + esc(x.n) + '</b><small>' + esc(x.s) + ' · ' + esc(x.tier) + '</small></span><span class="l-pr">' + esc(x.pr) + '</span></button>'; }).join('') + '</div>' +
         '<div class="l-det l-swap">' + detail + '</div></div><div class="l-home"></div>', 'l-ex');
-      watchImages(host);
+      watchImages(host); railIn(host, first); first = false;
       [].forEach.call(host.querySelectorAll('.l-li'), function (b) { b.onclick = function () { i = +b.dataset.i; showHow = false; draw(); }; });
-      [].forEach.call(host.querySelectorAll('.l-svc button'), function (b) { b.onclick = function () { svc = b.dataset.s; draw(); }; });
+      [].forEach.call(host.querySelectorAll('.l-svc button'), function (b) { if (b.dataset.s === popSvc) pop(b); b.onclick = function () { svc = b.dataset.s; popSvc = svc; draw(); }; });
+      popSvc = '';
       var a = host.querySelector('[data-act=how]'); if (a) a.onclick = function () { toggleHow(host); }; wireCopy(host);
     }
     draw();
@@ -87,11 +95,11 @@
 
   /* Black Market terminal */
   function blackMarket(host, cfg) {
-    var items = cfg.items || [], i = 0;
+    var items = cfg.items || [], i = 0, first = true;
     function draw(glitch) {
       if (!items.length) { host.innerHTML = frame(status('<span class="l-fl">// UNLISTED NETWORK</span>', 'No official oversight') + empty('Nothing is listed right now.'), 'l-bm'); return; }
       var d = items[i], free = !/^[\d,.\s]+$/.test(String(d.pr));
-      var risks = (d.risk || []).map(function (r) { return '<span class="l-chip">' + WARN + esc(r) + '</span>'; }).join('');
+      var risks = (d.risk || []).map(function (r, k) { return '<span class="l-chip" style="--i:' + k + '">' + WARN + esc(r) + '</span>'; }).join('');
       host.innerHTML = frame(status('<span class="l-fl">// UNLISTED NETWORK</span>', DATA.sample ? sample(true) : 'No official oversight') +
         '<div class="l-head"><h3>Open listings</h3><span>' + items.length + ' available · prices may change</span></div>' +
         '<div class="l-body"><div class="l-rail" role="group" aria-label="Listings">' + items.map(function (x, k) { return '<button class="l-li" aria-pressed="' + (k === i) + '" data-i="' + k + '">' + sprite(x, 1) + '<span><span class="l-id">' + esc(x.id) + '</span><b>' + esc(x.s) + '</b><small>' + esc(x.tier) + '</small></span><span class="l-pr">' + esc(x.pr) + '</span></button>'; }).join('') + '</div>' +
@@ -100,7 +108,7 @@
         '<div style="margin-top:10px"><div class="l-lab">Acquisition</div><button class="l-red" aria-expanded="false"><span class="l-bar3"></span><span class="l-rv">' + esc(d.aq) + '</span><span class="l-tg">Tap to reveal</span></button></div>' +
         '<div style="margin-top:12px"><div class="l-lab">Risks</div><div class="l-risks">' + risks + '</div></div></div>' +
         '<div class="l-buy"><div class="l-price">' + esc(d.pr) + '<small>' + (free ? 'terms by the dealer' : 'EXP') + '</small></div><div><button class="l-btn l-h" data-act="walk">Walk away</button> <button class="l-btn l-p" data-act="how">' + (free ? 'Hear the terms' : 'Make an offer') + '</button></div></div>' + requestBlock(cfg, d) + '</div></div><div class="l-home"></div>', 'l-bm');
-      watchImages(host);
+      watchImages(host); railIn(host, first); first = false;
       [].forEach.call(host.querySelectorAll('.l-li'), function (b) { b.onclick = function () { i = +b.dataset.i; draw(true); }; });
       var r = host.querySelector('.l-red'); r.onclick = function () { var o = r.classList.toggle('l-open'); r.setAttribute('aria-expanded', o); r.querySelector('.l-tg').textContent = o ? 'Hide' : 'Tap to reveal'; };
       host.querySelector('[data-act=walk]').onclick = function () { i = (i + 1) % items.length; draw(true); };

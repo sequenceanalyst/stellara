@@ -696,3 +696,67 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 .fl.crests.gyms{grid-template-columns:repeat(3,minmax(0,1fr));max-width:780px}
 @media(max-width:860px){.fl.crests.gyms{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){.fl.crests.gyms{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Console motion (Missions, Team Crux, Exchange, Black Market): small, quick, and switched off by the reduced-motion rule */
+@keyframes msn-row{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes msn-pop{0%{transform:scale(1)}40%{transform:scale(.88)}100%{transform:scale(1)}}
+@keyframes msn-flash{0%{color:var(--acc);text-shadow:0 0 12px var(--acc)}100%{text-shadow:none}}
+@keyframes msn-bar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes msn-fact{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes msn-fade{from{opacity:0}to{opacity:1}}
+.msn .m-rin>td{animation:msn-row .42s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*45ms)}
+.msn .m-chips button,.msn .m-seg button{transition:background .18s,border-color .18s,color .18s,transform .18s}
+.msn .m-chips button:hover{transform:translateY(-2px)}
+.msn .m-pop{animation:msn-pop .3s ease-out}
+.msn .m-flash{animation:msn-flash .7s ease-out}
+.msn .m-fl input[type=search],.msn .m-fl select{transition:border-color .18s,box-shadow .18s}
+.msn .m-fl input:focus,.msn .m-fl select:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(125,255,163,.14)}
+.msn .m-r td{transition:background .18s}
+.msn .m-r td:first-child{position:relative}
+.msn .m-r[data-open] td:first-child::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);transform-origin:top;animation:msn-bar .35s ease-out both}
+.msn .m-play .m-facts>div{animation:msn-fact .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(.35s + var(--f,0)*60ms)}
+.msn .m-empty{animation:msn-fade .4s ease-out both}
+
+@keyframes lst-row{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes lst-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes lst-pop{0%{transform:scale(1)}40%{transform:scale(.9)}100%{transform:scale(1)}}
+@keyframes lst-open{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes lst-wipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes lst-scan{0%{top:0;opacity:.9}100%{top:100%;opacity:0}}
+.lst .l-rin>.l-li{animation:lst-row .42s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*55ms)}
+.lst .l-ex .l-li,.lst .l-bm .l-li{transition:border-color .15s,background .15s,transform .18s}
+.lst .l-li:hover{transform:translateX(3px)}
+.lst .l-ex .l-svc button{transition:background .18s,border-color .18s,color .18s,transform .18s}
+.lst .l-pop{animation:lst-pop .3s ease-out}
+.lst .l-det .l-dl>div{animation:lst-rise .4s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(.1s + var(--i,0)*35ms)}
+.lst .l-det .l-moves span,.lst .l-det .l-risks .l-chip{animation:lst-rise .35s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(.3s + var(--i,0)*40ms)}
+.lst .l-det>div:first-child .l-sprite{position:relative}
+.lst .l-det>div:first-child .l-sprite::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:currentColor;box-shadow:0 0 10px currentColor;pointer-events:none;animation:lst-scan .6s ease-out both}
+.lst .l-det .l-price{animation:lst-rise .45s cubic-bezier(.16,1,.3,1) .25s both}
+.lst .l-how:not([hidden]){animation:lst-open .38s cubic-bezier(.16,1,.3,1) both}
+.lst .l-how:not([hidden]) .l-steps span{animation:lst-rise .4s cubic-bezier(.16,1,.3,1) both}
+.lst .l-how:not([hidden]) .l-steps span:nth-child(2){animation-delay:.08s}.lst .l-how:not([hidden]) .l-steps span:nth-child(3){animation-delay:.16s}
+.lst .l-bm .l-red.l-open .l-rv{animation:lst-wipe .5s steps(24) both}
+.lst .l-bm .l-red{transition:border-color .18s}
+.lst .l-bm .l-red:hover{border-color:var(--acc)}
+
+/* Team Crux Mission Console (Team Crux page): the Missions console in the Black Site skin, with the Crux emblem and a stamp on each mission */
+.msn[data-set=crux]{--acc:#e9eaec;--onacc:#0b0c0d;--ln:#34383d;--mu2:#8e959d}
+.msn[data-set=crux] .m-dev{background:linear-gradient(145deg,#1b1e21,#0b0c0d);box-shadow:0 22px 50px rgba(0,0,0,.55),inset 0 0 0 2px #2b2f33}
+.msn[data-set=crux] .m-scr{background:#08090a;color:#d6d9dd}
+.msn[data-set=crux] .m-scr::after{display:none}
+.msn[data-set=crux] .m-scr::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--ln) 1px,transparent 1px),linear-gradient(90deg,var(--ln) 1px,transparent 1px);background-size:48px 48px;opacity:.18}
+.msn[data-set=crux] .m-scr>*{position:relative}
+.msn[data-set=crux] .m-fl input[type=search],.msn[data-set=crux] .m-fl select{background:#0f1113;color:#d6d9dd}
+.msn[data-set=crux] .m-fl select option{background:#0f1113}
+.msn[data-set=crux] .m-seg button,.msn[data-set=crux] .m-chk,.msn[data-set=crux] .m-dos p,.msn[data-set=crux] .m-dos li,.msn[data-set=crux] .m-facts dd{color:#d6d9dd}
+.msn[data-set=crux] .m-seg button[aria-pressed=true]{color:var(--onacc)}
+.msn[data-set=crux] .m-tbl th{background:#0f1113}
+.msn[data-set=crux] .m-r:hover td{background:rgba(233,234,236,.04)}
+.msn[data-set=crux] .m-r[data-open] td{background:rgba(233,234,236,.08)}
+.msn[data-set=crux] .m-x td{background:#0b0c0d}
+.msn[data-set=crux] .m-fl input:focus,.msn[data-set=crux] .m-fl select:focus{box-shadow:0 0 0 3px rgba(233,234,236,.12)}
+.msn .m-brand{display:flex;align-items:center;gap:10px}
+.msn .m-brand img{width:26px;height:26px;display:block;filter:grayscale(1) contrast(1.1) brightness(1.4)}
+.msn .m-stamp{position:absolute;right:0;top:0;padding:4px 12px;border:2px solid #ff4655;color:#ff4655;font:600 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;transform:rotate(3deg);opacity:.9}
+@media (max-width:520px){.msn .m-stamp{position:static;display:inline-block;margin:0 0 10px;transform:none}}
