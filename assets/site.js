@@ -230,7 +230,7 @@
 
   /* Wide view: pages with a console (the Exchange, Black Market and Missions lists) get a button that hides the left menu, so the console can use the full width. The choice is remembered. */
   (function () {
-    var host = $('.lst, .msn'), lay = $('.layout');
+    var host = $('.lst, .msn, .atl'), lay = $('.layout');
     if (!host || !lay || lay.classList.contains('one') || lay.classList.contains('org')) return;
     function saved() { try { return localStorage.getItem('stellara-wide') === '1'; } catch (e) { return false; } }
     function save(v) { try { localStorage.setItem('stellara-wide', v ? '1' : '0'); } catch (e) {} }

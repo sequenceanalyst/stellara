@@ -542,6 +542,18 @@ var SITE = {
    ]
   },
   {
+   "route": "region/atlas",
+   "title": "Regional Atlas",
+   "parent": "region",
+   "layout": "article",
+   "icon": "compass",
+   "desc": "An interactive reference to the cities, towns, wilderness areas and landmarks of Stellara, with the points of interest found in each.",
+   "related": [
+    "region/settlements",
+    "region/wilderness"
+   ]
+  },
+  {
    "route": "region/settlements",
    "title": "Towns & Cities",
    "parent": "region",

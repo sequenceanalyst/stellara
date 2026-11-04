@@ -35,6 +35,14 @@ Each page file holds only that page's content. The menus and layout around it co
 
 The document writes prices as both EXP and XP. The ledger shows each price in the unit the document uses, and the list total is labeled EXP. The blanks in the copied list (such as "Pokémon / Move") come from what the document says each purchase must name.
 
+## Points of Interest and the Regional Atlas
+
+- **POI index on location pages.** Every location page ends its text with a "Points of Interest" list (a numbered index where one description unfolds at a time). It is drawn by `assets/pois.js` from `assets/atlas-data.js`; the page is matched to its data by the last part of its address. To add or change a POI, edit its entry in `atlas-data.js` (the fields are explained at the top of that file). A page needs no change. A link such as `/region/settlements/cyngi-city/#poi-cyngi-city--astral-promenade` opens that POI.
+- **Tags.** Each POI has one place type (Natural landmark, Commerce and community, Culture and history, Research and education, Recreation) or is a Gym. Gyms show a tag for their own type (for example "Fire Gym") with a matching icon; the 18 colours and icons are at the top of `assets/pois.js`. POIs the text names as subregions also carry a "Subregion" tag.
+- **Draft label.** While `status` in `atlas-data.js` says "draft", the POI list and the Atlas show a Draft label. Change the status to remove it. Gym types are marked "provisional" there until each Gym's `gymAssignmentStatus` is changed to `verified`.
+- **Regional Atlas** (`region/atlas/`): a filterable map and location panel drawn by `assets/atlas.js`. Coordinates are kept apart in `assets/atlas-geo.js` and are empty until a map is approved, so the Atlas currently shows a labeled index board, not geography. `assets/atlas-geo.preview.js` and `region/atlas/preview/` are an invented style preview and are not canon.
+- `_explore/` holds layout experiments. It is listed in `.gitignore` and is not published.
+
 ## Location and organization pages
 
 - **Location pages** (layout `location`): the hero shows the place type in its corner. To give a place its own picture, add `art: "assets/art/vaisera-mountains.webp"` to its entry in `site-data.js` and put the image in `assets/art/`. The hero then shows that picture instead of the banner. Below the text, "Within this location" and "Places mentioned" are built from the links in the text, followed by previous and next cards.
@@ -80,7 +88,7 @@ This is decided by word lists in `assets/site.js`, so a limit sentence that does
 
 ## Not built (by design)
 
-Per the architecture document: no in-site Pokémart checkout, PC management, accounts, applications, catches or mission submissions; no encounter tables; no map; no Discord URL. `discord` in `site-data.js` is empty, and the Discord button appears in the header when you fill it in.
+Per the architecture document: no in-site Pokémart checkout, PC management, accounts, applications, catches or mission submissions; no encounter tables; no Discord URL. `discord` in `site-data.js` is empty, and the Discord button appears in the header when you fill it in.
 
 ## Source notes
 
