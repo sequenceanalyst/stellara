@@ -51,9 +51,8 @@
   var pois = loc.pointsOfInterest.slice().sort(function (a, b) { return (b.isGym ? 1 : 0) - (a.isGym ? 1 : 0); });
   var want = decodeURIComponent((location.hash || '').replace(/^#poi-/, '')), start = 0;
   pois.forEach(function (p, i) { if (p.id === want) start = i; });
-  var draft = /draft/i.test(D.status || '');
 
-  var html = '<section class="poi" aria-labelledby="poi-h"><h2 id="poi-h">Points of Interest <span class="poi-n">' + pois.length + '</span>' + (draft ? '<span class="poi-draft" title="These descriptions are still being reviewed">Draft</span>' : '') + '</h2>' +
+  var html = '<section class="poi" aria-labelledby="poi-h"><h2 id="poi-h">Points of Interest <span class="poi-n">' + pois.length + '</span>' + '</h2>' +
     '<p class="poi-lead">Places to see in ' + esc(loc.name) + '. Choose one to read about it.</p><ul class="poi-list">' +
     pois.map(function (p, i) {
       var open = i === start;
@@ -62,8 +61,9 @@
         '<div class="poi-body" id="poi-b' + i + '" role="region" aria-labelledby="poi-' + esc(p.id) + '"><div><p>' + sentences(p.description).map(function (s, j) { return '<span class="s" style="--i:' + j + '">' + esc(s) + '</span>'; }).join('') + '</p></div></div></li>';
     }).join('') + '</ul></section>';
 
-  var anchor = main.querySelector('h3.lbl');
-  if (anchor) anchor.insertAdjacentHTML('beforebegin', html); else main.insertAdjacentHTML('beforeend', html);
+  /* always directly after the description paragraphs, ahead of the chip lists, previous/next and anything else */
+  var ps = [].filter.call(main.children, function (n) { return n.tagName === 'P' && !n.classList.contains('nojs'); }), last = ps[ps.length - 1];
+  if (last) last.insertAdjacentHTML('afterend', html); else main.insertAdjacentHTML('afterbegin', html);
 
   var list = main.querySelector('.poi-list');
   list.addEventListener('click', function (e) {
