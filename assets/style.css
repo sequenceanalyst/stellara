@@ -938,3 +938,12 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 @keyframes poi-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(max-width:700px){.poi-btn{grid-template-columns:34px minmax(0,1fr) 18px;row-gap:6px}.poi-tags{grid-column:2/3;grid-row:2;justify-content:flex-start}.poi-car{grid-column:3;grid-row:1}.poi-body p{padding-left:12px}}
 @media(prefers-reduced-motion:reduce){.poi-body,.poi-car{transition:none}.poi-item.open .s{animation:none}}
+
+/* Missions console: the list shows the first few missions, with a toggle for the rest */
+.msn .m-more{border-top:1px solid var(--ln)}
+.msn .m-more:empty{display:none}
+.msn .m-tog{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;padding:0 20px;background:none;border:0;font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc);cursor:pointer}
+.msn .m-tog:hover{background:rgba(255,255,255,.04)}
+.msn .m-tc{display:inline-block;transition:transform .2s}
+.msn .m-tog[aria-expanded=true] .m-tc{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){.msn .m-tc{transition:none}}

@@ -8,6 +8,7 @@
   var D = (CRUX ? window.STELLARA_CRUX_MISSIONS : window.STELLARA_MISSIONS) || {}, RANKS = D.ranks || [];
   var W = CRUX ? { head: 'CRUX FIELD CONSOLE // OPERATIONS INDEX', by: 'Ordered by', brief: 'Orders', party: 'Squad', copy: 'Crux mission: ' } : { head: 'FIELD CONSOLE // MISSION INDEX', by: 'Issued by', brief: 'Briefing', party: 'Party', copy: 'Mission: ' };
   var ROWS = true, FLASH = false;
+  var LIMIT = Number(D.visible) > 0 ? Number(D.visible) : 8, EXPAND = false;
   var F = { q: '', stars: {}, rep: 'any', type: '', issuer: '', solo: false, sort: 'star', dir: 1 }, sel = '', ANIM = false;
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
@@ -87,21 +88,23 @@
 
   host.innerHTML = '<div class="m-dev"><div class="m-scr"><div class="m-stat"><span class="m-brand">' + (CRUX ? '<img src="' + ROOT + 'assets/logos/team-crux-128.png" alt="">' : '') + '<span>&gt; ' + W.head + '</span></span>' + (D.sample ? '<span class="m-sm">Sample missions</span>' : '') + '</div>' +
     '<div class="m-cmd"><div class="m-flt"></div></div><div class="m-count" role="status" aria-live="polite"></div>' +
-    '<div class="m-tblw"><table class="m-tbl"><thead><tr></tr></thead><tbody></tbody></table></div></div></div>';
+    '<div class="m-tblw"><table class="m-tbl"><thead><tr></tr></thead><tbody></tbody></table></div><div class="m-more"></div></div></div>';
   controls(host.querySelector('.m-flt'));
-  var head = host.querySelector('thead tr'), body = host.querySelector('tbody'), cnt = host.querySelector('.m-count');
+  var head = host.querySelector('thead tr'), body = host.querySelector('tbody'), cnt = host.querySelector('.m-count'), more = host.querySelector('.m-more');
 
   var COLS = [['star', 'Rank'], ['title', 'Mission'], ['type', 'Type', 'm-hide'], ['issuer', W.by, 'm-hide'], ['rep', 'Repeat', 'm-hide'], ['reward', 'EXP']];
   var SORTNAME = { star: 'rank', reward: 'EXP', rep: 'repeat' };
   function draw() {
-    var r = results();
-    cnt.textContent = r.length + ' of ' + M.length + ' mission' + (M.length === 1 ? '' : 's') + ', sorted by ' + (SORTNAME[F.sort] || F.sort) + (F.dir > 0 ? ', low to high' : ', high to low');
+    var all = results(), r = EXPAND ? all : all.slice(0, LIMIT);
+    if (sel && r.indexOf(M.filter(function (x) { return x.id === sel; })[0]) < 0) sel = '';
+    cnt.textContent = (r.length < all.length ? 'Showing the first ' + r.length + ' of ' + all.length + (all.length < M.length ? ' matching' : '') : all.length + ' of ' + M.length) + ' mission' + (M.length === 1 ? '' : 's') + ', sorted by ' + (SORTNAME[F.sort] || F.sort) + (F.dir > 0 ? ', low to high' : ', high to low');
     head.innerHTML = COLS.map(function (c) { var on = F.sort === c[0]; return '<th class="' + (c[2] || '') + '"' + (on ? ' aria-sort="' + (F.dir > 0 ? 'ascending' : 'descending') + '"' : '') + '><button data-k="' + c[0] + '">' + c[1] + (on ? (F.dir > 0 ? ' ▲' : ' ▼') : '') + '</button></th>'; }).join('');
     body.innerHTML = r.length ? r.map(function (m) {
       var o = m.id === sel;
       return '<tr class="m-r' + (ROWS ? ' m-rin' : '') + '" style="--i:' + Math.min(r.indexOf(m), 12) + '" data-id="' + esc(m.id) + '"' + (o ? ' data-open' : '') + '><td>' + stars(m.st) + '</td><td><button class="m-open" aria-expanded="' + o + '"><span class="m-caret" aria-hidden="true">▸</span>' + esc(m.title) + '</button></td><td class="m-hide">' + esc(m.type) + '</td><td class="m-hide">' + esc(m.issuer) + '</td><td class="m-hide">' + (m.rep ? 'Yes' : 'No') + '</td><td>' + m.bonus + '</td></tr>' +
         (o ? '<tr class="m-x"><td colspan="6"><div class="m-xin">' + dossier(m) + '</div></td></tr>' : '');
     }).join('') : '<tr><td colspan="6"><div class="m-empty"><b>No missions found</b>Try removing a filter, or search for a different word.</div></td></tr>';
+    more.innerHTML = all.length > LIMIT ? '<button type="button" class="m-tog" aria-expanded="' + EXPAND + '"><span class="m-tc" aria-hidden="true">▾</span>' + (EXPAND ? 'Show fewer missions' : 'Show all ' + all.length + ' missions') + '</button>' : '';
     ANIM = false; ROWS = false;
     var fi = 0; [].forEach.call(body.querySelectorAll('.m-facts>div'), function (d) { d.style.setProperty('--f', fi++); });
     cnt.classList.remove('m-flash'); if (FLASH) { void cnt.offsetWidth; cnt.classList.add('m-flash'); } FLASH = false;
@@ -109,6 +112,12 @@
   /* small motion: a filter or sort change slides the rows in again and flashes the count; opening a mission leaves the list still */
   function filt() { ROWS = true; FLASH = true; draw(); }
   function pop(b) { b.classList.remove('m-pop'); void b.offsetWidth; b.classList.add('m-pop'); }
+  more.onclick = function (e) {
+    if (!e.target.closest('.m-tog')) return;
+    EXPAND = !EXPAND; sel = ''; draw();
+    var nb = more.querySelector('.m-tog'); if (nb) nb.focus();
+    if (!EXPAND) { var top = host.querySelector('.m-count'); if (top && top.scrollIntoView) top.scrollIntoView({ block: 'nearest' }); }
+  };
   head.onclick = function (e) {
     var b = e.target.closest('button'); if (!b) return; var k = b.dataset.k;
     if (F.sort === k) F.dir *= -1; else { F.sort = k; F.dir = (k === 'star' || k === 'reward') ? -1 : 1; }
