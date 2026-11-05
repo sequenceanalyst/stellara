@@ -1103,7 +1103,7 @@ window.STELLARA_ATLAS = {
      "id": "largia-swamp--the-drowned-path",
      "name": "The Drowned Path",
      "description": "What appears to be an abandoned stone walkway occasionally emerges from the shallow waters of Largia Swamp. Large portions have disappeared beneath mud and vegetation, making its original purpose difficult to determine. Local residents believe the path once connected settlements that existed before the wetlands expanded, although little evidence has been recovered.",
-     "category": "commerce_community",
+     "category": "natural_landmark",
      "isGym": false,
      "isNamedSubregion": false
     }
