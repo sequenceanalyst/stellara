@@ -52,6 +52,7 @@
       var isGym = p.isGym === true || p.category === 'gym'; if (isGym) gymTotal++;
       loc.pois.push({ id: p.id, name: String(p.name), desc: String(p.description || ''), gym: isGym, gymType: p.gymType || '', gymOk: p.gymAssignmentStatus === 'verified', sub: p.isNamedSubregion === true, key: norm(p.name) });
     });
+    loc.pois.sort(function (a, b) { return (b.gym ? 1 : 0) - (a.gym ? 1 : 0); });
     byId[raw.id] = loc; L.push(loc);
   });
   var draft = /draft/i.test(D.status || '');
@@ -62,7 +63,7 @@
   function kindName(l) { return l.cat === 'cities_towns' ? (/-town$/.test(l.id) ? 'Town' : 'City') : (CATS[l.cat] || ''); }
 
   /* ---------- state ---------- */
-  var S = { q: '', cats: {}, sel: '', open: '', legend: false };
+  var S = { q: '', cats: {}, sel: '', open: '', legend: false, sort: 'cat' };
   var base = [1000, 700], view = { x: 0, y: 0, w: 1000, h: 700 }, pos = {};
   var descCache = {};
 
@@ -107,7 +108,7 @@
 
   /* legend */
   $('.atl-legend').innerHTML = '<b class="atl-lab">Legend</b><ul>' + CAT_KEYS.map(function (k) { return '<li class="' + cIdx(k) + '"><span class="atl-lgi">' + ico(ICON[k]) + '</span>' + esc(CATS[k]) + '</li>'; }).join('') +
-    '<li class="lgx"><span class="atl-lgi">' + ico(ICON.town) + '</span>Towns use the house symbol, cities the building</li></ul><p>Selected places get a bright ring. Dimmed places do not match the search or filters.</p>';
+    '<li class="lgx"><span class="atl-lgi">' + ico(ICON.town) + '</span>Towns use the house symbol, cities the building</li>' + (G.points && Object.keys(G.points).some(function (k) { return G.points[k].basis === 'guess'; }) ? '<li class="lgx"><span class="atl-lgi atl-lgh"></span>A hollow marker is a proposed position: the official description does not say where the place is</li>' : '') + '</ul><p>Selected places get a bright ring. Dimmed places do not match the search or filters.</p>';
 
   /* ---------- the map ---------- */
   function layoutBoard() {
@@ -134,8 +135,37 @@
     if (b.length > 17) b = b.slice(0, 16) + '…';
     return [a, b];
   }
+  /* label chips for the digital chart: each chip takes the free spot nearest its audited label position, clear of every node and every other chip. Anchors never move. */
+  var FS = 20, FS_H = 34, chipAt = {};
+  function layoutChips() {
+    var items = [], placed = [];
+    L.forEach(function (l) {
+      var p = pos[l.id]; if (!p) return; var tw = Math.round(l.name.length * FS * .6);
+      items.push({ id: l.id, ox: p.lx == null ? p.x : p.lx, oy: p.ly == null ? p.y : p.ly, tw: tw, w: tw + 56 });
+    });
+    items.forEach(function (c) { c.n = items.filter(function (o) { return o !== c && Math.hypot(o.ox - c.ox, o.oy - c.oy) < 260; }).length; });
+    items.sort(function (a, b) { return b.n - a.n; });
+    var wet = [];
+    (G.rivers || []).forEach(function (r) { for (var k = 0; k < r.points.length - 1; k++) { var a = r.points[k], b = r.points[k + 1], n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 10)); for (var t = 0; t <= n; t++) wet.push([a[0] + (b[0] - a[0]) * t / n, a[1] + (b[1] - a[1]) * t / n]); } });
+    function blocked(x, y, w) {
+      if (x - w / 2 < 8 || x + w / 2 > base[0] - 8 || y - FS_H / 2 < 8 || y + FS_H / 2 > base[1] - 8) return true;
+      for (var id in pos) { var q = pos[id]; if (Math.abs(x - q.x) < w / 2 + 10 && Math.abs(y - q.y) < FS_H / 2 + 10) return true; }
+      for (var q = 0; q < wet.length; q++) if (Math.abs(x - wet[q][0]) < w / 2 + 6 && Math.abs(y - wet[q][1]) < FS_H / 2 + 10) return true;
+      return placed.some(function (o) { return Math.abs(x - o.x) < (w + o.w) / 2 + 6 && Math.abs(y - o.y) < FS_H + 6; });
+    }
+    items.forEach(function (c) {
+      c.x = c.ox; c.y = c.oy;
+      search: for (var r = 0; r <= 200; r += 10) {
+        for (var a = 0; a < (r ? 24 : 1); a++) {
+          var t = a / 24 * Math.PI * 2, x = c.ox + Math.cos(t) * r * 1.6, y = c.oy + Math.sin(t) * r;
+          if (!blocked(x, y, c.w)) { c.x = Math.round(x * 10) / 10; c.y = Math.round(y * 10) / 10; break search; }
+        }
+      }
+      placed.push(c); chipAt[c.id] = c;
+    });
+  }
   function buildSvg() {
-    var h = '';
+    var h = ''; if (art) layoutChips();
     if (!geoOn) {
       board.bands.forEach(function (b) {
         h += '<g class="atl-band ' + cIdx(b.k) + '"><rect x="0" y="' + b.y + '" width="1000" height="' + b.h + '"/><text x="22" y="' + (b.y + 27) + '">' + esc(CATS[b.k]) + '</text></g>';
@@ -147,15 +177,15 @@
     L.forEach(function (l) {
       var p = pos[l.id]; if (!p) return;
       if (art) {
-        /* digital chart: a node on the anchor, a leader line and a label chip placed at the audited label position */
-        var lx = p.lx == null ? p.x : p.lx, ly = p.ly == null ? p.y : p.ly, tw = Math.round(l.name.length * 8.4), w = tw + 46, ht = 28;
-        h += '<g class="atl-mk ' + cIdx(l.cat) + '" data-id="' + esc(l.id) + '" role="button" tabindex="0" aria-pressed="false" aria-label="' + esc(l.name + ', ' + kindName(l)) + '">' +
-          '<line class="ln" x1="' + p.x + '" y1="' + p.y + '" x2="' + lx + '" y2="' + ly + '"/>' +
-          '<rect class="nd" x="' + (p.x - 6) + '" y="' + (p.y - 6) + '" width="12" height="12" transform="rotate(45 ' + p.x + ' ' + p.y + ')"/><rect class="pulse" x="' + (p.x - 6) + '" y="' + (p.y - 6) + '" width="12" height="12" transform="rotate(45 ' + p.x + ' ' + p.y + ')"/>' +
-          '<g transform="translate(' + (lx - w / 2) + ' ' + (ly - ht / 2) + ')"><rect class="chip" width="' + w + '" height="' + ht + '" rx="3"/><rect class="bar" width="4" height="' + ht + '"/>' +
-          '<path class="gl" transform="translate(12 6) scale(.667)" d="' + kindIcon(l) + '"/>' +
-          '<text class="lb" x="36" y="' + (ht / 2 + 4.6) + '" textLength="' + tw + '" lengthAdjust="spacingAndGlyphs">' + esc(l.name) + '</text></g>' +
-          '<rect class="hit" x="' + (lx - w / 2) + '" y="' + (ly - ht / 2) + '" width="' + w + '" height="' + ht + '"/><title>' + esc(l.name) + '</title></g>';
+        /* digital chart: a node on the anchor, a dashed leader and a label chip. Chips start at the audited label positions and are nudged apart. */
+        var c = chipAt[l.id], hw = c.w / 2, hh = FS_H / 2;
+        h += '<g class="atl-mk ' + cIdx(l.cat) + (p.basis === 'guess' ? ' gs' : '') + '" data-id="' + esc(l.id) + '" role="button" tabindex="0" aria-pressed="false" aria-label="' + esc(l.name + ', ' + kindName(l) + (p.basis === 'guess' ? ', position is a proposal' : '')) + '">' +
+          '<line class="ln" x1="' + p.x + '" y1="' + p.y + '" x2="' + c.x + '" y2="' + c.y + '"/>' +
+          '<g transform="translate(' + c.x + ' ' + c.y + ')"><g class="cg"><rect class="chip" x="' + (-hw) + '" y="' + (-hh) + '" width="' + c.w + '" height="' + FS_H + '" rx="4"/><rect class="bar" x="' + (-hw) + '" y="' + (-hh) + '" width="5" height="' + FS_H + '"/>' +
+          '<path class="gl" transform="translate(' + (-hw + 14) + ' -10) scale(.8333)" d="' + kindIcon(l) + '"/>' +
+          '<text class="lb" x="' + (-hw + 42) + '" y="7" textLength="' + c.tw + '" lengthAdjust="spacingAndGlyphs">' + esc(l.name) + '</text></g></g>' +
+          '<g transform="translate(' + p.x + ' ' + p.y + ')"><g class="ng"><rect class="pulse" x="-7" y="-7" width="14" height="14" transform="rotate(45)"/><rect class="nd" x="-7" y="-7" width="14" height="14" transform="rotate(45)"/></g></g>' +
+          '<rect class="hit hc" x="' + (c.x - hw) + '" y="' + (c.y - hh) + '" width="' + c.w + '" height="' + FS_H + '"/><circle class="hit hn" cx="' + p.x + '" cy="' + p.y + '" r="20"/><title>' + esc(l.name) + '</title></g>';
         return;
       }
       var ln = lines(l.name);
@@ -180,7 +210,14 @@
     view.x = Math.min(base[0] - view.w, Math.max(0, view.x)); view.y = Math.min(base[1] - view.h, Math.max(0, view.y));
     svg.setAttribute('viewBox', view.x + ' ' + view.y + ' ' + view.w + ' ' + view.h);
     stage.classList.toggle('zoomed', view.w < base[0] - 1);
+    if (art) {
+      var px = svg.getBoundingClientRect().width / view.w || 0, on = FS * px;
+      svg.style.setProperty('--k', px ? Math.max(.5, Math.min(1, 12 / on)).toFixed(3) : 1);
+      stage.classList.toggle('tiny', px > 0 && on < 9.6);
+      svg.style.setProperty('--ks', px ? Math.min(3.4, 12.5 / on).toFixed(2) : 2.5);
+    }
   }
+  if (window.ResizeObserver) new ResizeObserver(function () { applyView(); }).observe(svg);
   function zoomBy(f, cx, cy) {
     var nx = cx == null ? view.x + view.w / 2 : cx, ny = cy == null ? view.y + view.h / 2 : cy, nw = view.w * f;
     nw = Math.min(base[0], Math.max(base[0] / 6, nw)); var k = nw / view.w;
@@ -261,16 +298,25 @@
       descCache[l.id] = ps.length ? { p: ps, official: true } : fallback; done(descCache[l.id]);
     }).catch(function () { done(fallback); });
   }
+  function rowHtml(l, q) {
+    var hits = poiHits(l), byPoi = hits.length && norm(l.name).indexOf(q) < 0, gyms = l.pois.filter(function (p) { return p.gym; }).length,
+      sub = byPoi ? 'Contains: ' + hits.slice(0, 3).map(function (p) { return esc(p.name); }).join(', ') + (hits.length > 3 ? ' +' + (hits.length - 3) : '') : esc(kindName(l));
+    return '<li><button type="button" class="atl-row ' + cIdx(l.cat) + '" data-id="' + esc(l.id) + '"' + (byPoi ? ' data-poi="' + esc(hits[0].id) + '"' : '') + '><span class="atl-rg">' + ico(kindIcon(l)) + '</span>' +
+      '<span class="atl-nm">' + esc(l.name) + '<span class="atl-sub">' + sub + '</span></span>' +
+      (pos[l.id] ? '' : '<span class="atl-np">Not on map</span>') + (gyms ? '<span class="atl-gb" title="' + (gyms === 1 ? 'Has a Gym' : gyms + ' Gyms') + '">' + ico(ICON.gym) + '<span class="atl-sr">' + (gyms === 1 ? 'Has a Gym' : gyms + ' Gyms') + '</span></span>' : '') +
+      '<span class="atl-n" title="' + l.pois.length + ' points of interest">' + l.pois.length + '</span></button></li>';
+  }
   function listHtml() {
     var q = norm(S.q).trim(), shown = L.filter(matches), h = '';
-    h += '<p class="atl-count">' + shown.length + ' of ' + L.length + ' locations' + (q || Object.keys(S.cats).length ? ' match' : '') + '</p>';
+    h += '<div class="atl-lh"><div><h2 class="atl-h2">Places</h2><p class="atl-count">' + shown.length + ' of ' + L.length + (q || Object.keys(S.cats).length ? ' match' : ' on the map') + '</p></div>' +
+      '<div class="atl-seg" role="group" aria-label="Order the list"><button type="button" class="atl-so" data-sort="cat" aria-pressed="' + (S.sort === 'cat') + '">By type</button><button type="button" class="atl-so" data-sort="az" aria-pressed="' + (S.sort === 'az') + '">A to Z</button></div></div>';
     if (!shown.length) return h + '<div class="atl-empty"><b>Nothing found</b><p>No place or point of interest matches &ldquo;' + esc(S.q) + '&rdquo;' + (Object.keys(S.cats).length ? ' in the chosen categories' : '') + '. Check the spelling or try a shorter word.</p><button type="button" class="atl-btn atl-clear">Clear search and filters</button></div>';
+    if (S.sort === 'az') {
+      return h + '<ul class="atl-list">' + shown.slice().sort(function (a, b) { return a.key < b.key ? -1 : 1; }).map(function (l) { return rowHtml(l, q); }).join('') + '</ul>';
+    }
     CAT_KEYS.forEach(function (k) {
       var items = shown.filter(function (l) { return l.cat === k; }); if (!items.length) return;
-      h += '<h3 class="atl-gh ' + cIdx(k) + '">' + ico(ICON[k]) + esc(CATS[k]) + '</h3><ul class="atl-list">' + items.map(function (l) {
-        var hits = poiHits(l), extra = hits.length && norm(l.name).indexOf(q) < 0 ? '<span class="atl-sub">Contains: ' + hits.slice(0, 3).map(function (p) { return esc(p.name); }).join(', ') + (hits.length > 3 ? ' +' + (hits.length - 3) : '') + '</span>' : '';
-        return '<li><button type="button" class="atl-row ' + cIdx(l.cat) + '" data-id="' + esc(l.id) + '"' + (hits.length && norm(l.name).indexOf(q) < 0 ? ' data-poi="' + esc(hits[0].id) + '"' : '') + '><span class="atl-nm">' + esc(l.name) + extra + '</span>' + (pos[l.id] ? '' : '<span class="atl-np">Not on map</span>') + '<span class="atl-n">' + l.pois.length + '</span></button></li>';
-      }).join('') + '</ul>';
+      h += '<h3 class="atl-gh ' + cIdx(k) + '">' + ico(ICON[k]) + '<span>' + esc(CATS[k]) + '</span><em>' + items.length + '</em></h3><ul class="atl-list">' + items.map(function (l) { return rowHtml(l, q); }).join('') + '</ul>';
     });
     return h;
   }
@@ -284,22 +330,25 @@
   function drawPanel() {
     panel.classList.toggle('has-sel', !!S.sel);
     var l = byId[S.sel];
-    if (!l) { pin.innerHTML = '<div class="atl-welcome"><b>Select a destination</b><p>Choose a marker on the map, or a place below, to read about it and browse its points of interest.</p></div>' + listHtml(); return; }
-    var open = S.open;
-    pin.innerHTML = '<div class="atl-bar"><button type="button" class="atl-back">&larr; All locations</button><button type="button" class="atl-x" aria-label="Close and show all locations">&times;</button></div>' +
-      '<article class="atl-detail ' + cIdx(l.cat) + '"><p class="atl-kind">' + ico(kindIcon(l)) + esc(kindName(l)) + (l.cat === 'cities_towns' ? '' : '') + '</p><h2 tabindex="-1" class="atl-title">' + esc(l.name) + '</h2>' +
-      '<p class="atl-cat">' + esc(CATS[l.cat] || '') + (pos[l.id] ? '' : ' &middot; position on the map not yet approved') + '</p>' +
-      '<div class="atl-desc" aria-busy="true"><p class="atl-dim">Loading the official description&hellip;</p></div>' +
-      (l.page ? '<p class="atl-full"><a href="' + ROOT + l.page.route + '/">Read the full page for ' + esc(l.name) + '</a></p>' : '') +
+    if (!l) { pin.innerHTML = listHtml(); return; }
+    var open = S.open, gyms = l.pois.filter(function (p) { return p.gym; }).length;
+    pin.innerHTML = '<div class="atl-bar"><button type="button" class="atl-back">&larr; All places</button>' +
+      (l.page ? '<a class="atl-go" href="' + ROOT + l.page.route + '/">Full page<svg class="ai" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>' : '') +
+      '<button type="button" class="atl-x" aria-label="Close and show all places">&times;</button></div>' +
+      '<article class="atl-detail ' + cIdx(l.cat) + '"><p class="atl-kind">' + ico(kindIcon(l)) + esc(kindName(l)) + '</p><h2 tabindex="-1" class="atl-title">' + esc(l.name) + '</h2>' +
+      '<p class="atl-stats"><span>' + l.pois.length + ' point' + (l.pois.length === 1 ? '' : 's') + ' of interest</span>' + (gyms ? '<span class="atl-stg">' + gyms + ' Gym' + (gyms === 1 ? '' : 's') + '</span>' : '') + (pos[l.id] ? (pos[l.id].basis === 'guess' ? '<span class="atl-guess" title="The official description does not say where this is, so the map position is a proposal.">Position proposed</span>' : '') : '<span>Position not yet approved</span>') + '</p>' +
+      '<div class="atl-desc" aria-busy="true"><div class="atl-clamp"><p class="atl-dim">Loading the official description&hellip;</p></div></div>' +
       '<h3 class="atl-ph">Points of interest <span>' + l.pois.length + '</span></h3>' +
       (l.pois.length ? '<ul class="atl-pois">' + l.pois.map(function (p) { return poiHtml(l, p); }).join('') + '</ul>' : '<p class="atl-dim">No points of interest have been added for this location yet.</p>') + '</article>';
-    var token = l.id; var box = pin.querySelector('.atl-desc');
+    var token = l.id, box = pin.querySelector('.atl-desc');
     paragraphs(l, function (r) {
       if (S.sel !== token || !box.isConnected) return;
       box.removeAttribute('aria-busy');
-      box.innerHTML = r.p.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('') + (r.official ? '' : '<p class="atl-dim">Short summary shown because the full page could not be loaded.</p>');
+      box.innerHTML = '<div class="atl-clamp">' + r.p.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('') + (r.official ? '' : '<p class="atl-dim">Short summary shown because the full page could not be loaded.</p>') + '</div><button type="button" class="atl-more" aria-expanded="false" hidden>Read more</button>';
+      var cl = box.querySelector('.atl-clamp'); if (cl.scrollHeight > cl.clientHeight + 4) box.querySelector('.atl-more').hidden = false; else cl.classList.add('open');
     });
     if (open) { var b = pin.querySelector('[data-poi="' + open + '"]'); if (b && b.scrollIntoView) b.scrollIntoView({ block: 'nearest' }); }
+    panel.scrollTop = 0;
   }
 
   /* panel clicks: list rows, back, accordion */
@@ -312,6 +361,8 @@
       [].forEach.call(pin.querySelectorAll('.atl-poi'), function (li) { var pb = li.querySelector('.atl-pb'), is = on && pb.dataset.poi === id; li.classList.toggle('open', is); pb.setAttribute('aria-expanded', is); li.querySelector('.atl-pbody').hidden = !is; });
     }
     else if (b.classList.contains('atl-clear')) clearAll();
+    else if (b.classList.contains('atl-so')) { S.sort = b.dataset.sort; drawPanel(); var nb = pin.querySelector('.atl-so[data-sort="' + S.sort + '"]'); if (nb) nb.focus(); }
+    else if (b.classList.contains('atl-more')) { var cl = b.previousElementSibling, on = !cl.classList.contains('open'); cl.classList.toggle('open', on); b.setAttribute('aria-expanded', on); b.textContent = on ? 'Show less' : 'Read more'; }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.sel && host.contains(document.activeElement)) { select('', ''); } });
 

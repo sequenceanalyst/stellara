@@ -832,7 +832,7 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 .atl-count{margin:0 0 4px;font:500 11.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}
 .atl-gh{display:flex;align-items:center;gap:8px;margin:16px 0 6px;font:600 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--cc)}
 .atl-list{list-style:none;margin:0;padding:0}
-.atl-row{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:6px 10px;border:0;border-left:3px solid var(--cc);border-bottom:1px solid #12303c;background:transparent;text-align:left}
+.atl-row{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:6px 10px;border:0;border-bottom:1px solid #12303c;background:transparent;text-align:left}
 .atl-row:hover{background:#0d2431}
 .atl-nm{flex:1;min-width:0;font:600 14px/1.3 var(--body);color:#fff}
 .atl-sub{display:block;margin-top:2px;font:400 12px/1.4 var(--body);color:var(--mu)}
@@ -948,34 +948,79 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 .msn .m-tog[aria-expanded=true] .m-tc{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){.msn .m-tc{transition:none}}
 
-/* Regional Atlas: the digital chart. A pixel-grid map with label chips placed at the audited positions. */
-.atl.digital .atl-stage{flex:none;background:#030a11}
+/* Regional Atlas: the digital chart. A pixel-grid map; label chips sit at the audited positions and are nudged apart by atlas.js. */
+.atl.digital .atl-main{grid-template-columns:minmax(0,1fr) 360px}
+.atl.digital .atl-stage{flex:none;min-height:0;background:#030a11}
 .atl.digital .atl-svg{max-height:none}
 .atl.digital .atl-art{pointer-events:none}
 .atl.digital .atl-mk .hit{fill:transparent}
-.atl.digital .atl-mk .chip{fill:#061620;fill-opacity:.9;stroke:var(--cc);stroke-width:1.5;stroke-opacity:.75}
+.atl.digital .atl-mk .cg{transform:scale(var(--k,1))}
+.atl.digital .atl-mk .chip{fill:#040d14;fill-opacity:.96;stroke:var(--cc);stroke-width:2;stroke-opacity:.9}
 .atl.digital .atl-mk .bar{fill:var(--cc)}
-.atl.digital .atl-mk .gl{fill:none;stroke:var(--cc);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.atl.digital .atl-mk .lb{fill:#e8f6fb;font:600 14px var(--mono);pointer-events:none}
-.atl.digital .atl-mk .nd{fill:var(--cc);stroke:#030a11;stroke-width:2.5}
+.atl.digital .atl-mk .gl{fill:none;stroke:var(--cc);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.atl.digital .atl-mk .lb{fill:#f4fbff;font:600 20px var(--mono);pointer-events:none}
+.atl.digital .atl-mk .nd{fill:var(--cc);stroke:#030a11;stroke-width:3}
 .atl.digital .atl-mk .pulse{fill:none;stroke:var(--cc);stroke-width:2;opacity:0;pointer-events:none}
-.atl.digital .atl-mk .ln{stroke:var(--cc);stroke-width:1.6;stroke-dasharray:3 3;opacity:.75;pointer-events:none}
+.atl.digital .atl-mk .ln{stroke:var(--cc);stroke-width:2;stroke-dasharray:4 4;opacity:.8;pointer-events:none}
 .atl.digital .atl-mk:hover .chip{stroke:#fff;stroke-opacity:1}
-.atl.digital .atl-mk:focus-visible .chip{stroke:#fff;stroke-width:3;stroke-opacity:1}
-.atl.digital .atl-mk.sel{--on:1}
-.atl.digital .atl-mk.sel .chip{fill:var(--cc);fill-opacity:1;stroke:#fff;stroke-width:2.5;stroke-opacity:1}
-.atl.digital .atl-mk.sel .bar{fill:#04121a}
-.atl.digital .atl-mk.sel .gl{stroke:#04121a}
-.atl.digital .atl-mk.sel .lb{fill:#04121a}
-.atl.digital .atl-mk.sel .ln{opacity:1;stroke-dasharray:none;stroke-width:2.4}
+.atl.digital .atl-mk:focus-visible .chip{stroke:#fff;stroke-width:3.5;stroke-opacity:1}
+.atl.digital .atl-mk.sel .chip{fill:#020a10;fill-opacity:1;stroke:var(--cc);stroke-width:4;stroke-opacity:1}
+.atl.digital .atl-mk.sel .cg{transform:scale(calc(var(--k,1) * 1.35))}
+.atl.digital .atl-mk.sel .lb{fill:#fff;font-weight:700}
+.atl.digital .atl-mk.sel .bar{fill:var(--cc)}
+.atl.digital .atl-mk.sel .ln{opacity:1;stroke-dasharray:none;stroke-width:3}
 .atl.digital .atl-mk.sel .pulse{opacity:1;animation:atl-pulse 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
 .atl.digital .atl-mk.dim{opacity:.16;pointer-events:none}
+/* zoomed far out (a phone): names would be too small, so show only the nodes; a name appears on hover, focus or selection */
+.atl.digital .tiny .atl-mk .cg{display:none}
+.atl.digital .tiny .atl-mk .ng{transform:scale(1.7)}
+.atl.digital .tiny .atl-mk .hc{pointer-events:none}
+.atl.digital .tiny .atl-mk .hn{r:26px}
+.atl.digital .tiny .atl-mk.sel .cg,.atl.digital .tiny .atl-mk:hover .cg,.atl.digital .tiny .atl-mk:focus-visible .cg{display:inline;transform:scale(var(--ks,2.5))}
 @keyframes atl-pulse{from{opacity:.9;transform:rotate(45deg) scale(1)}to{opacity:0;transform:rotate(45deg) scale(3.4)}}
 .atl.digital .atl-stage::after{content:"";position:absolute;left:0;right:0;top:0;height:90px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(127,240,255,.07) 70%,rgba(127,240,255,.22));border-bottom:1px solid rgba(127,240,255,.35);animation:atl-scan 9s linear infinite}
 @keyframes atl-scan{from{top:-90px}to{top:100%}}
 .atl-hud{position:absolute;left:14px;top:12px;display:flex;flex-direction:column;gap:3px;pointer-events:none;font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#7ff0ff}
 .atl-hud b{font-size:13px;color:#e8f6fb}
-.atl-hud span{opacity:.8}
-.atl-hud:empty{display:none}
+.atl-hud span{opacity:.85}
+@media(max-width:900px){.atl.digital .atl-main{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.atl.digital .atl-stage::after{animation:none;display:none}.atl.digital .atl-mk.sel .pulse{animation:none;opacity:0}}
 @media(max-width:560px){.atl-hud span{display:none}}
+
+/* Atlas side panel: a sticky header, plain rows with a type glyph, and a short description that expands */
+.atl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.atl-pin{padding:0 18px 26px}
+.atl-lh{position:sticky;top:0;z-index:3;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:0 -18px 4px;padding:16px 18px 12px;background:var(--pn);border-bottom:1px solid var(--ln)}
+.atl-h2{margin:0;font:400 1.35rem/1 var(--display);text-transform:uppercase;letter-spacing:-.01em;color:#fff}
+.atl-lh .atl-count{margin:6px 0 0}
+.atl-seg{display:inline-flex;flex:none;border:2px solid var(--ln)}
+.atl-so{min-height:40px;padding:0 11px;white-space:nowrap;border:0;background:transparent;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}
+.atl-so+.atl-so{border-left:2px solid var(--ln)}
+.atl-so[aria-pressed=true]{background:var(--g);color:var(--k)}
+.atl-gh{margin:20px 0 4px}
+.atl-gh span{flex:1}
+.atl-gh em{font-style:normal;font-weight:500;color:var(--mu)}
+.atl-row{gap:12px;min-height:54px;padding:8px 4px;border:0;border-bottom:1px solid #12303c}
+.atl-rg{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1.5px solid var(--cc);border-radius:7px;color:var(--cc);transition:background .15s,color .15s}
+.atl-row:hover .atl-rg,.atl-row:focus-visible .atl-rg{background:var(--cc);color:#04121a}
+.atl-sub{font:500 12px/1.4 var(--body);color:var(--mu)}
+.atl-gb{display:inline-flex;color:var(--amb)}
+.atl-bar{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:10px;margin:0 -18px 18px;padding:6px 18px;background:var(--pn);border-bottom:1px solid var(--ln)}
+.atl-back{flex:1;text-align:left;text-decoration:none}
+.atl-back:hover{text-decoration:underline}
+.atl-go{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border:2px solid var(--g);color:var(--g);font:600 11.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;margin-left:auto}
+.atl-go:hover{background:var(--g);color:var(--k)}
+.atl-stats{display:flex;flex-wrap:wrap;gap:4px 14px;margin:10px 0 0;font:500 12px var(--mono);color:var(--mu)}
+.atl-stg{color:var(--amb)}
+.atl-desc{margin-top:16px;padding-top:0;border-top:0}
+.atl-clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden}
+.atl-clamp.open{display:block}
+.atl-more{margin:0;min-height:40px;padding:0;border:0;background:none;color:var(--cy);font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px}
+.atl-more[hidden]{display:none}
+.atl-ph{margin:18px 0 8px}
+@media(max-width:900px){.atl-panel.has-sel .atl-go{margin-left:auto}}
+
+/* proposed (guessed) positions: hollow node, and a note in the panel */
+.atl.digital .atl-mk.gs .nd{fill:#030a11;stroke:var(--cc);stroke-width:4}
+.atl-guess{color:var(--amb)}
+.atl-lgh{display:inline-block;width:12px;height:12px;border:3px solid var(--mu);transform:rotate(45deg);margin:0 3px}
