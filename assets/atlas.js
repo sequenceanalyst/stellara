@@ -55,8 +55,9 @@
     byId[raw.id] = loc; L.push(loc);
   });
   var draft = /draft/i.test(D.status || '');
-  var geoOn = (G.approved === true || G.placeholder === true) && G.points, chart = G.theme === 'chart';
+  var geoOn = (G.approved === true || G.placeholder === true || G.proposed === true) && G.points, chart = G.theme === 'chart', art = G.theme === 'digital' && !!G.image;
   if (chart) host.classList.add('chart');
+  if (art) host.classList.add('digital');
   function kindIcon(l) { return l.cat === 'cities_towns' ? (/-town$/.test(l.id) ? ICON.town : ICON.city) : ICON[l.cat] || ICON.special_landmarks; }
   function kindName(l) { return l.cat === 'cities_towns' ? (/-town$/.test(l.id) ? 'Town' : 'City') : (CATS[l.cat] || ''); }
 
@@ -140,10 +141,23 @@
         h += '<g class="atl-band ' + cIdx(b.k) + '"><rect x="0" y="' + b.y + '" width="1000" height="' + b.h + '"/><text x="22" y="' + (b.y + 27) + '">' + esc(CATS[b.k]) + '</text></g>';
       });
     } else {
+      if (art) h += '<image class="atl-art" href="' + ROOT + esc(G.image) + '" x="0" y="0" width="' + base[0] + '" height="' + base[1] + '" preserveAspectRatio="none" aria-hidden="true"/>';
       (G.layers || []).forEach(function (ly) { h += '<g class="atl-layer" data-layer="' + esc(ly.id || '') + '" aria-hidden="true">' + ly.svg + '</g>'; });
     }
     L.forEach(function (l) {
       var p = pos[l.id]; if (!p) return;
+      if (art) {
+        /* digital chart: a node on the anchor, a leader line and a label chip placed at the audited label position */
+        var lx = p.lx == null ? p.x : p.lx, ly = p.ly == null ? p.y : p.ly, tw = Math.round(l.name.length * 8.4), w = tw + 46, ht = 28;
+        h += '<g class="atl-mk ' + cIdx(l.cat) + '" data-id="' + esc(l.id) + '" role="button" tabindex="0" aria-pressed="false" aria-label="' + esc(l.name + ', ' + kindName(l)) + '">' +
+          '<line class="ln" x1="' + p.x + '" y1="' + p.y + '" x2="' + lx + '" y2="' + ly + '"/>' +
+          '<rect class="nd" x="' + (p.x - 6) + '" y="' + (p.y - 6) + '" width="12" height="12" transform="rotate(45 ' + p.x + ' ' + p.y + ')"/><rect class="pulse" x="' + (p.x - 6) + '" y="' + (p.y - 6) + '" width="12" height="12" transform="rotate(45 ' + p.x + ' ' + p.y + ')"/>' +
+          '<g transform="translate(' + (lx - w / 2) + ' ' + (ly - ht / 2) + ')"><rect class="chip" width="' + w + '" height="' + ht + '" rx="3"/><rect class="bar" width="4" height="' + ht + '"/>' +
+          '<path class="gl" transform="translate(12 6) scale(.667)" d="' + kindIcon(l) + '"/>' +
+          '<text class="lb" x="36" y="' + (ht / 2 + 4.6) + '" textLength="' + tw + '" lengthAdjust="spacingAndGlyphs">' + esc(l.name) + '</text></g>' +
+          '<rect class="hit" x="' + (lx - w / 2) + '" y="' + (ly - ht / 2) + '" width="' + w + '" height="' + ht + '"/><title>' + esc(l.name) + '</title></g>';
+        return;
+      }
       var ln = lines(l.name);
       h += '<g class="atl-mk ' + cIdx(l.cat) + '" data-id="' + esc(l.id) + '" role="button" tabindex="0" aria-pressed="false" aria-label="' + esc(l.name + ', ' + kindName(l)) + '" transform="translate(' + p.x + ' ' + p.y + ')' + (chart ? ' scale(1.15)' : '') + '">' +
         (chart ? '<circle class="hit" r="34"/><rect class="ring" x="-27" y="-27" width="54" height="54" rx="14"/><rect class="dot" x="-21" y="-21" width="42" height="42" rx="10"/><path class="gl" transform="translate(-13 -13) scale(1.0833)" d="' + kindIcon(l) + '"/>'
@@ -153,9 +167,11 @@
     svg.innerHTML = h;
   }
   buildSvg();
+  if (art) stage.insertAdjacentHTML('beforeend', '<div class="atl-hud" aria-hidden="true"><b>Stellara // Regional chart</b><span>Proposed placement, not canon</span></div>');
   var banner = $('.atl-banner');
   var unplaced = L.filter(function (l) { return !pos[l.id]; });
   if (G.placeholder === true) { banner.hidden = false; banner.innerHTML = '<b>Style preview, not Stellara.</b> The coastline and every position here were invented to show the map style. They are not canon and mean nothing. The approved map will replace them: see assets/atlas-geo.js.'; }
+  else if (G.proposed === true) { banner.hidden = false; banner.innerHTML = '<b>Proposed map.</b> This placement of the places in Stellara is a proposal and is not final canon. It can change.'; }
   else if (!geoOn) { banner.hidden = false; banner.innerHTML = '<b>Index board, not a map.</b> The approved map of Stellara is not ready, so places are grouped by category and their positions mean nothing. The board is ready for the real map: see assets/atlas-geo.js.'; }
   else if (unplaced.length) { banner.hidden = false; banner.innerHTML = unplaced.length + ' location(s) are not on the map yet. Find them in the list.'; }
 
@@ -214,7 +230,7 @@
     else live.textContent = 'Selection cleared.';
   }
   function centerOn(id) {
-    var p = pos[id]; if (!p || view.w >= base[0] - 1) return;
+  var p = pos[id]; if (!p || view.w >= base[0] - 1) return; if (p.lx != null) p = { x: p.lx, y: p.ly };
     if (p.x < view.x + 60 || p.x > view.x + view.w - 60 || p.y < view.y + 60 || p.y > view.y + view.h - 60) { view.x = p.x - view.w / 2; view.y = p.y - view.h / 2; applyView(); }
   }
   svg.addEventListener('click', function (e) {

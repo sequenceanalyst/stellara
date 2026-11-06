@@ -947,3 +947,35 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
 .msn .m-tc{display:inline-block;transition:transform .2s}
 .msn .m-tog[aria-expanded=true] .m-tc{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){.msn .m-tc{transition:none}}
+
+/* Regional Atlas: the digital chart. A pixel-grid map with label chips placed at the audited positions. */
+.atl.digital .atl-stage{flex:none;background:#030a11}
+.atl.digital .atl-svg{max-height:none}
+.atl.digital .atl-art{pointer-events:none}
+.atl.digital .atl-mk .hit{fill:transparent}
+.atl.digital .atl-mk .chip{fill:#061620;fill-opacity:.9;stroke:var(--cc);stroke-width:1.5;stroke-opacity:.75}
+.atl.digital .atl-mk .bar{fill:var(--cc)}
+.atl.digital .atl-mk .gl{fill:none;stroke:var(--cc);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.atl.digital .atl-mk .lb{fill:#e8f6fb;font:600 14px var(--mono);pointer-events:none}
+.atl.digital .atl-mk .nd{fill:var(--cc);stroke:#030a11;stroke-width:2.5}
+.atl.digital .atl-mk .pulse{fill:none;stroke:var(--cc);stroke-width:2;opacity:0;pointer-events:none}
+.atl.digital .atl-mk .ln{stroke:var(--cc);stroke-width:1.6;stroke-dasharray:3 3;opacity:.75;pointer-events:none}
+.atl.digital .atl-mk:hover .chip{stroke:#fff;stroke-opacity:1}
+.atl.digital .atl-mk:focus-visible .chip{stroke:#fff;stroke-width:3;stroke-opacity:1}
+.atl.digital .atl-mk.sel{--on:1}
+.atl.digital .atl-mk.sel .chip{fill:var(--cc);fill-opacity:1;stroke:#fff;stroke-width:2.5;stroke-opacity:1}
+.atl.digital .atl-mk.sel .bar{fill:#04121a}
+.atl.digital .atl-mk.sel .gl{stroke:#04121a}
+.atl.digital .atl-mk.sel .lb{fill:#04121a}
+.atl.digital .atl-mk.sel .ln{opacity:1;stroke-dasharray:none;stroke-width:2.4}
+.atl.digital .atl-mk.sel .pulse{opacity:1;animation:atl-pulse 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+.atl.digital .atl-mk.dim{opacity:.16;pointer-events:none}
+@keyframes atl-pulse{from{opacity:.9;transform:rotate(45deg) scale(1)}to{opacity:0;transform:rotate(45deg) scale(3.4)}}
+.atl.digital .atl-stage::after{content:"";position:absolute;left:0;right:0;top:0;height:90px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(127,240,255,.07) 70%,rgba(127,240,255,.22));border-bottom:1px solid rgba(127,240,255,.35);animation:atl-scan 9s linear infinite}
+@keyframes atl-scan{from{top:-90px}to{top:100%}}
+.atl-hud{position:absolute;left:14px;top:12px;display:flex;flex-direction:column;gap:3px;pointer-events:none;font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#7ff0ff}
+.atl-hud b{font-size:13px;color:#e8f6fb}
+.atl-hud span{opacity:.8}
+.atl-hud:empty{display:none}
+@media(prefers-reduced-motion:reduce){.atl.digital .atl-stage::after{animation:none;display:none}.atl.digital .atl-mk.sel .pulse{animation:none;opacity:0}}
+@media(max-width:560px){.atl-hud span{display:none}}

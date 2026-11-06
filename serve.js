@@ -1,7 +1,7 @@
 /* Tiny local web server for previewing the site: node serve.js [port]  (default 8830). Not needed on GitHub Pages. */
 const http = require('http'), fs = require('fs'), path = require('path');
 const root = __dirname, port = +process.argv[2] || 8830;
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'application/javascript', '.webp': 'image/webp', '.png': 'image/png', '.md': 'text/plain; charset=utf-8' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'application/javascript', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png', '.md': 'text/plain; charset=utf-8' };
 http.createServer((q, r) => {
   let p = decodeURIComponent(q.url.split('?')[0]); let f = path.join(root, p); if (!f.startsWith(root)) { r.writeHead(403); return r.end(); }
   if (p.endsWith('/')) f = path.join(f, 'index.html');
