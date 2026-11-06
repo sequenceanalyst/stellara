@@ -475,7 +475,8 @@ var SITE = {
    "heads": [
     "Sponsorship Tiers",
     "Primary and Secondary Sponsorships",
-    "Obtaining and Maintaining Sponsorships"
+    "Obtaining and Maintaining Sponsorships",
+    "Sponsor Directory"
    ]
   },
   {
