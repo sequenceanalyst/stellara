@@ -85,25 +85,15 @@ var SITE = {
    ]
   },
   {
-   "route": "getting-started/general-rules",
-   "title": "General Rules",
+   "route": "getting-started/rules",
+   "title": "Rules",
    "parent": "getting-started",
    "layout": "article",
    "icon": "doc",
-   "desc": "Eight rules.",
-   "related": [
-    "getting-started/roleplay-rules"
-   ]
-  },
-  {
-   "route": "getting-started/roleplay-rules",
-   "title": "Roleplay Rules",
-   "parent": "getting-started",
-   "layout": "article",
-   "icon": "chat",
-   "desc": "Six rules.",
-   "related": [
-    "getting-started/general-rules"
+   "desc": "The general rules and the roleplay rules for Stellara.",
+   "heads": [
+    "General Rules",
+    "Roleplay Rules"
    ]
   },
   {
