@@ -63,7 +63,7 @@
   function kindName(l) { return l.cat === 'cities_towns' ? (/-town$/.test(l.id) ? 'Town' : 'City') : (CATS[l.cat] || ''); }
 
   /* ---------- state ---------- */
-  var S = { q: '', cats: {}, sel: '', open: '', legend: false, sort: 'cat' };
+  var S = { q: '', cats: {}, sel: '', open: '', legend: false, sort: 'cat', names: null, last: '', rov: '' };
   var base = [1000, 700], view = { x: 0, y: 0, w: 1000, h: 700 }, pos = {};
   var descCache = {};
 
@@ -85,15 +85,15 @@
     (draft ? ' <span class="atl-tag atl-draft">Draft content</span>' : '') + '</p></div>' +
     '<div class="atl-tools" role="search">' +
     '<label class="atl-search"><span class="atl-lab">Search places and points of interest</span><input type="search" class="atl-q" placeholder="Try a city, a forest or a Gym" autocomplete="off"></label>' +
-    '<div class="atl-chips" role="group" aria-label="Filter by category"></div>' +
-    '<div class="atl-btns"><button type="button" class="atl-btn atl-reset">Reset map</button><button type="button" class="atl-btn atl-lg" aria-pressed="false" aria-controls="atl-legend">Legend</button></div></div>' +
+    '<div class="atl-chips" id="atl-chips" role="group" aria-label="Filter by category"></div>' +
+    '<div class="atl-btns"><button type="button" class="atl-btn atl-fl" aria-expanded="false" aria-controls="atl-chips">Filters<em class="atl-fn"></em></button><button type="button" class="atl-btn atl-reset">Reset map</button><button type="button" class="atl-btn atl-lg" aria-pressed="false" aria-controls="atl-legend">Legend</button></div></div>' +
     '<div class="atl-main"><section class="atl-mapwrap" aria-label="Map of Stellara">' +
-    '<p class="atl-banner" hidden></p>' +
+    '<p class="atl-banner" hidden></p><div class="atl-pills" aria-label="Active filters" hidden></div>' +
     '<div class="atl-stage" tabindex="0" aria-label="Map. Use the arrow keys to move, plus and minus to zoom, zero to reset."><svg class="atl-svg" role="group" aria-label="Locations in Stellara"></svg>' +
-    '<div class="atl-zoom"><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="out" aria-label="Zoom out">&minus;</button>' + (chart ? '<button type="button" data-z="names" class="atl-nmbtn" aria-pressed="false" aria-label="Show all place names">Aa</button>' : '') + '</div>' +
+    '<div class="atl-zoom"><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="out" aria-label="Zoom out">&minus;</button>' + ((chart || art) ? '<button type="button" data-z="names" class="atl-nmbtn" aria-pressed="' + (art ? 'true' : 'false') + '" aria-label="Show place names" title="Show or hide place names">Aa</button>' : '') + '</div>' +
     '<div class="atl-legend" id="atl-legend" hidden></div></div>' +
-    '<p class="atl-hint">Drag to move the map. Hold Ctrl and scroll, or pinch, to zoom.</p></section>' +
-    '<aside class="atl-panel" aria-label="Location information"><div class="atl-pin"></div></aside></div>' +
+    '<p class="atl-hint">Drag to move, pinch or Ctrl+scroll to zoom. Keyboard: Tab to the map, arrow keys move between places, Enter opens one, Esc closes it, + and &minus; zoom.</p></section>' +
+    '<aside class="atl-panel" id="atl-panel" aria-label="Location information"><div class="atl-pin"></div></aside></div>' +
     '<p class="atl-live" role="status" aria-live="polite"></p>';
 
   var $ = function (s) { return host.querySelector(s); };
@@ -136,7 +136,7 @@
     return [a, b];
   }
   /* label chips for the digital chart: each chip takes the free spot nearest its audited label position, clear of every node and every other chip. Anchors never move. */
-  var FS = 20, FS_H = 34, chipAt = {};
+  var FS = 22, FS_H = 36, chipAt = {};
   function layoutChips() {
     var items = [], placed = [];
     L.forEach(function (l) {
@@ -183,7 +183,7 @@
           '<line class="ln" x1="' + p.x + '" y1="' + p.y + '" x2="' + c.x + '" y2="' + c.y + '"/>' +
           '<g transform="translate(' + c.x + ' ' + c.y + ')"><g class="cg"><rect class="chip" x="' + (-hw) + '" y="' + (-hh) + '" width="' + c.w + '" height="' + FS_H + '" rx="4"/><rect class="bar" x="' + (-hw) + '" y="' + (-hh) + '" width="5" height="' + FS_H + '"/>' +
           '<path class="gl" transform="translate(' + (-hw + 14) + ' -10) scale(.8333)" d="' + kindIcon(l) + '"/>' +
-          '<text class="lb" x="' + (-hw + 42) + '" y="7" textLength="' + c.tw + '" lengthAdjust="spacingAndGlyphs">' + esc(l.name) + '</text></g></g>' +
+          '<text class="lb" x="' + (-hw + 42) + '" y="8" textLength="' + c.tw + '" lengthAdjust="spacingAndGlyphs">' + esc(l.name) + '</text></g></g>' +
           '<g transform="translate(' + p.x + ' ' + p.y + ')"><g class="ng"><rect class="pulse" x="-7" y="-7" width="14" height="14" transform="rotate(45)"/><rect class="nd" x="-7" y="-7" width="14" height="14" transform="rotate(45)"/></g></g>' +
           '<rect class="hit hc" x="' + (c.x - hw) + '" y="' + (c.y - hh) + '" width="' + c.w + '" height="' + FS_H + '"/><circle class="hit hn" cx="' + p.x + '" cy="' + p.y + '" r="20"/><title>' + esc(l.name) + '</title></g>';
         return;
@@ -197,7 +197,7 @@
     svg.innerHTML = h;
   }
   buildSvg();
-  if (art) stage.insertAdjacentHTML('beforeend', '<div class="atl-hud" aria-hidden="true"><b>Stellara // Regional chart</b><span>Proposed placement, not canon</span></div>');
+  if (art) stage.insertAdjacentHTML('beforeend', '<div class="atl-hud" aria-hidden="true"><b>Stellara // Regional chart</b></div>');
   var banner = $('.atl-banner');
   var unplaced = L.filter(function (l) { return !pos[l.id]; });
   if (G.placeholder === true) { banner.hidden = false; banner.innerHTML = '<b>Style preview, not Stellara.</b> The coastline and every position here were invented to show the map style. They are not canon and mean nothing. The approved map will replace them: see assets/atlas-geo.js.'; }
@@ -205,26 +205,36 @@
   else if (!geoOn) { banner.hidden = false; banner.innerHTML = '<b>Index board, not a map.</b> The approved map of Stellara is not ready, so places are grouped by category and their positions mean nothing. The board is ready for the real map: see assets/atlas-geo.js.'; }
   else if (unplaced.length) { banner.hidden = false; banner.innerHTML = unplaced.length + ' location(s) are not on the map yet. Find them in the list.'; }
 
+  /* On a phone the map box is tall (half the screen) and shows the whole height of the map, so the view is narrower than the map and can be panned sideways. */
+  function asp() {
+    if (!art || window.innerWidth > 560) { if (svg.style.height) svg.style.height = ''; return base[0] / base[1]; }
+    var h = Math.round(window.innerHeight * .5); if (svg.style.height !== h + 'px') svg.style.height = h + 'px';
+    return (stage.clientWidth || svg.clientWidth || base[0]) / h;
+  }
+  function maxW() { return Math.min(base[0], base[1] * asp()); }
   function applyView() {
-    view.w = Math.min(base[0], Math.max(base[0] / 6, view.w)); view.h = view.w * base[1] / base[0];
+    var A = asp(), mw = Math.min(base[0], base[1] * A);
+    view.w = Math.min(mw, Math.max(mw / 6, view.w)); view.h = view.w / A;
     view.x = Math.min(base[0] - view.w, Math.max(0, view.x)); view.y = Math.min(base[1] - view.h, Math.max(0, view.y));
     svg.setAttribute('viewBox', view.x + ' ' + view.y + ' ' + view.w + ' ' + view.h);
-    stage.classList.toggle('zoomed', view.w < base[0] - 1);
+    stage.classList.toggle('zoomed', view.w < mw - 1);
     if (art) {
-      var px = svg.getBoundingClientRect().width / view.w || 0, on = FS * px;
+      var px = svg.getBoundingClientRect().width / view.w || 0, on = FS * px, tiny = px > 0 && on < 8.5, show = S.names === null ? !tiny : S.names;
       svg.style.setProperty('--k', px ? Math.max(.5, Math.min(1, 12 / on)).toFixed(3) : 1);
-      stage.classList.toggle('tiny', px > 0 && on < 9.6);
       svg.style.setProperty('--ks', px ? Math.min(3.4, 12.5 / on).toFixed(2) : 2.5);
+      svg.style.setProperty('--hr', px ? Math.max(20, 24 / px).toFixed(1) + 'px' : '20px');
+      stage.classList.toggle('tiny', tiny); stage.classList.toggle('nonames', !show);
+      var nb = host.querySelector('.atl-nmbtn'); if (nb) nb.setAttribute('aria-pressed', show);
     }
   }
   if (window.ResizeObserver) new ResizeObserver(function () { applyView(); }).observe(svg);
   function zoomBy(f, cx, cy) {
-    var nx = cx == null ? view.x + view.w / 2 : cx, ny = cy == null ? view.y + view.h / 2 : cy, nw = view.w * f;
-    nw = Math.min(base[0], Math.max(base[0] / 6, nw)); var k = nw / view.w;
+    var mw = maxW(), nx = cx == null ? view.x + view.w / 2 : cx, ny = cy == null ? view.y + view.h / 2 : cy, nw = view.w * f;
+    nw = Math.min(mw, Math.max(mw / 6, nw)); var k = nw / view.w;
     view.x = nx - (nx - view.x) * k; view.y = ny - (ny - view.y) * k; view.w = nw; applyView();
   }
   function toSvg(ev) { var r = svg.getBoundingClientRect(); return { x: view.x + (ev.clientX - r.left) / r.width * view.w, y: view.y + (ev.clientY - r.top) / r.height * view.h }; }
-  function resetView() { view = { x: 0, y: 0, w: base[0], h: base[1] }; applyView(); }
+  function resetView() { var mw = maxW(); view = { x: (base[0] - mw) / 2, y: 0, w: mw, h: mw / asp() }; applyView(); }
 
   /* drag to move, two fingers to zoom */
   var ptrs = {}, drag = null, moved = false, pinch = 0;
@@ -257,17 +267,24 @@
     else if (k === 'ArrowLeft') { view.x -= st; applyView(); } else if (k === 'ArrowRight') { view.x += st; applyView(); } else if (k === 'ArrowUp') { view.y -= st; applyView(); } else if (k === 'ArrowDown') { view.y += st; applyView(); } else return;
     e.preventDefault();
   });
-  $('.atl-zoom').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.z === 'names') { var on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); stage.classList.toggle('names', on); return; } zoomBy(b.dataset.z === 'in' ? 1 / 1.4 : 1.4); });
+  $('.atl-zoom').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.z === 'names') { if (art) { S.names = b.getAttribute('aria-pressed') !== 'true'; applyView(); } else { var on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); stage.classList.toggle('names', on); } return; } zoomBy(b.dataset.z === 'in' ? 1 / 1.4 : 1.4); });
 
   /* ---------- selecting ---------- */
   function select(id, poiId) {
-    S.sel = id || ''; S.open = poiId || '';
+    S.sel = id || ''; S.open = poiId || ''; if (id) S.last = '';
     drawMarkers(); drawPanel();
     if (id) { live.textContent = byId[id].name + ' selected. ' + byId[id].pois.length + ' points of interest.'; centerOn(id); }
     else live.textContent = 'Selection cleared.';
   }
   function centerOn(id) {
-  var p = pos[id]; if (!p || view.w >= base[0] - 1) return; if (p.lx != null) p = { x: p.lx, y: p.ly };
+    var p = pos[id]; if (!p) return;
+    if (window.innerWidth <= 900) {   /* the place sheet covers the lower part of the screen: keep the node in the upper third of the map and the map in view */
+      view.x = p.x - view.w / 2; view.y = p.y - view.h * .34; applyView();
+      try { var r = stage.getBoundingClientRect(); if (r.top < 0 || r.top > 80) stage.scrollIntoView({ block: 'start' }); } catch (e) {}
+      return;
+    }
+    if (p.lx != null) p = { x: p.lx, y: p.ly };
+    if (view.w >= maxW() - 1) return;
     if (p.x < view.x + 60 || p.x > view.x + view.w - 60 || p.y < view.y + 60 || p.y > view.y + view.h - 60) { view.x = p.x - view.w / 2; view.y = p.y - view.h / 2; applyView(); }
   }
   svg.addEventListener('click', function (e) {
@@ -276,16 +293,30 @@
   });
   svg.addEventListener('keydown', function (e) {
     var g = e.target.closest && e.target.closest('.atl-mk'); if (!g) return;
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(g.dataset.id === S.sel ? '' : g.dataset.id, ''); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(g.dataset.id === S.sel ? '' : g.dataset.id, ''); var t = pin.querySelector('.atl-title'); if (t) t.focus({ preventScroll: true }); return; }
+    var dir = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] }[e.key]; if (!dir) return;
+    e.preventDefault();
+    var from = pos[g.dataset.id], best = null, bs = 1e9;
+    [].forEach.call(svg.querySelectorAll('.atl-mk:not(.dim)'), function (o) {
+      if (o === g) return; var q = pos[o.dataset.id], dx = q.x - from.x, dy = q.y - from.y, along = dx * dir[0] + dy * dir[1], across = Math.abs(dx * dir[1] - dy * dir[0]);
+      if (along <= 4) return; var sc = along + across * 2; if (sc < bs) { bs = sc; best = o; }
+    });
+    if (best) best.focus();
   });
+  svg.addEventListener('focusin', function (e) { var g = e.target.closest && e.target.closest('.atl-mk'); if (g) { S.rov = g.dataset.id; [].forEach.call(svg.querySelectorAll('.atl-mk'), function (o) { if (!o.classList.contains('dim')) o.setAttribute('tabindex', o === g ? 0 : -1); }); } });
 
   function drawMarkers() {
+    var first = null, rovOk = false;
     [].forEach.call(svg.querySelectorAll('.atl-mk'), function (g) {
       var id = g.dataset.id, on = matches(byId[id]), sel = id === S.sel;
       g.classList.toggle('dim', !on); g.classList.toggle('sel', sel);
-      g.setAttribute('aria-pressed', sel); g.setAttribute('tabindex', on ? 0 : -1);
+      g.setAttribute('aria-pressed', sel);
+      if (on && !first) first = g; if (on && id === (S.sel || S.rov)) rovOk = true;
       if (sel) g.parentNode.appendChild(g);
     });
+    /* roving tabindex: the map is ONE tab stop (the selected place, else the last one visited, else the first that matches) */
+    var rov = S.sel && matches(byId[S.sel]) ? S.sel : (rovOk ? S.rov : (first ? first.dataset.id : ''));
+    [].forEach.call(svg.querySelectorAll('.atl-mk'), function (g) { g.setAttribute('tabindex', g.dataset.id === rov && !g.classList.contains('dim') ? 0 : -1); });
   }
 
   /* ---------- the panel ---------- */
@@ -308,8 +339,9 @@
   }
   function listHtml() {
     var q = norm(S.q).trim(), shown = L.filter(matches), h = '';
-    h += '<div class="atl-lh"><div><h2 class="atl-h2">Places</h2><p class="atl-count">' + shown.length + ' of ' + L.length + (q || Object.keys(S.cats).length ? ' match' : ' on the map') + '</p></div>' +
+    h += '<div class="atl-lh"><div><h2 class="atl-h2" tabindex="-1">Places</h2><p class="atl-count">' + shown.length + ' of ' + L.length + (q || Object.keys(S.cats).length ? ' match' : ' on the map') + '</p></div>' +
       '<div class="atl-seg" role="group" aria-label="Order the list"><button type="button" class="atl-so" data-sort="cat" aria-pressed="' + (S.sort === 'cat') + '">By type</button><button type="button" class="atl-so" data-sort="az" aria-pressed="' + (S.sort === 'az') + '">A to Z</button></div></div>';
+    if (S.last && byId[S.last] && !S.sel) h += '<button type="button" class="atl-resume" data-id="' + esc(S.last) + '">&larr; Back to ' + esc(byId[S.last].name) + '</button>';
     if (!shown.length) return h + '<div class="atl-empty"><b>Nothing found</b><p>No place or point of interest matches &ldquo;' + esc(S.q) + '&rdquo;' + (Object.keys(S.cats).length ? ' in the chosen categories' : '') + '. Check the spelling or try a shorter word.</p><button type="button" class="atl-btn atl-clear">Clear search and filters</button></div>';
     if (S.sort === 'az') {
       return h + '<ul class="atl-list">' + shown.slice().sort(function (a, b) { return a.key < b.key ? -1 : 1; }).map(function (l) { return rowHtml(l, q); }).join('') + '</ul>';
@@ -361,13 +393,32 @@
       [].forEach.call(pin.querySelectorAll('.atl-poi'), function (li) { var pb = li.querySelector('.atl-pb'), is = on && pb.dataset.poi === id; li.classList.toggle('open', is); pb.setAttribute('aria-expanded', is); li.querySelector('.atl-pbody').hidden = !is; });
     }
     else if (b.classList.contains('atl-clear')) clearAll();
+    else if (b.classList.contains('atl-resume')) { S.cats = {}; S.q = ''; qIn.value = ''; syncChips(); select(b.dataset.id, ''); drawPills(); }
     else if (b.classList.contains('atl-so')) { S.sort = b.dataset.sort; drawPanel(); var nb = pin.querySelector('.atl-so[data-sort="' + S.sort + '"]'); if (nb) nb.focus(); }
     else if (b.classList.contains('atl-more')) { var cl = b.previousElementSibling, on = !cl.classList.contains('open'); cl.classList.toggle('open', on); b.setAttribute('aria-expanded', on); b.textContent = on ? 'Show less' : 'Read more'; }
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.sel && host.contains(document.activeElement)) { select('', ''); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.sel && host.contains(document.activeElement)) { var was = S.sel; select('', ''); var m = svg.querySelector('.atl-mk[data-id="' + was + '"]'); if (m) m.focus({ preventScroll: true }); } });
 
   /* ---------- toolbar ---------- */
-  function refresh() { S.sel = ''; S.open = ''; drawMarkers(); drawPanel(); }
+  function refresh() {
+    var keep = S.sel && matches(byId[S.sel]);
+    if (!keep) { if (S.sel) S.last = S.sel; S.sel = ''; S.open = ''; }
+    drawMarkers(); drawPanel(); drawPills();
+  }
+  function drawPills() {
+    var box = $('.atl-pills'), h = '', q = S.q.trim();
+    if (q) h += '<button type="button" class="atl-pill" data-k="q">Search: &ldquo;' + esc(q.length > 22 ? q.slice(0, 21) + '…' : q) + '&rdquo;<span aria-hidden="true">&times;</span><span class="atl-sr"> remove search</span></button>';
+    CAT_KEYS.forEach(function (k) { if (S.cats[k]) h += '<button type="button" class="atl-pill ' + cIdx(k) + '" data-k="' + k + '">' + esc(CATS[k]) + '<span aria-hidden="true">&times;</span><span class="atl-sr"> remove filter</span></button>'; });
+    box.innerHTML = h + (h && (Object.keys(S.cats).length + (q ? 1 : 0)) > 1 ? '<button type="button" class="atl-pill atl-pall" data-k="all">Clear all</button>' : '');
+    box.hidden = !h;
+    var n = Object.keys(S.cats).length, fn = $('.atl-fn'); if (fn) fn.textContent = n ? ' ' + n : '';
+  }
+  $('.atl-pills').addEventListener('click', function (e) {
+    var b = e.target.closest('.atl-pill'); if (!b) return; var k = b.dataset.k;
+    if (k === 'q') { S.q = ''; qIn.value = ''; } else if (k === 'all') { S.q = ''; S.cats = {}; qIn.value = ''; } else delete S.cats[k];
+    syncChips(); refresh(); live.textContent = L.filter(matches).length + ' locations shown.';
+  });
+  $('.atl-fl').addEventListener('click', function (e) { var t = $('.atl-tools'), on = !t.classList.contains('fopen'); t.classList.toggle('fopen', on); e.currentTarget.setAttribute('aria-expanded', on); });
   function clearAll() { S.q = ''; S.cats = {}; qIn.value = ''; syncChips(); refresh(); }
   function syncChips() { [].forEach.call(host.querySelectorAll('.atl-chip'), function (c) { c.setAttribute('aria-pressed', !!S.cats[c.dataset.cat]); }); }
   qIn.addEventListener('input', function () { S.q = qIn.value; refresh(); });
@@ -379,7 +430,7 @@
   $('.atl-reset').addEventListener('click', function () { resetView(); select('', ''); clearAll(); });
   $('.atl-lg').addEventListener('click', function (e) { S.legend = !S.legend; e.currentTarget.setAttribute('aria-pressed', S.legend); $('.atl-legend').hidden = !S.legend; });
 
-  drawMarkers(); drawPanel(); applyView();
+  drawMarkers(); drawPanel(); drawPills(); resetView();
   if (problems.length) { var w = document.createElement('p'); w.className = 'atl-problems'; w.textContent = problems.length + ' data problem(s) were found. Details are in the browser console.'; host.insertBefore(w, host.firstChild); }
   /* a link such as ?place=cyngi-city opens that place */
   try { var want = new URLSearchParams(location.search).get('place'); if (want && byId[want]) select(want, ''); } catch (e) {}
