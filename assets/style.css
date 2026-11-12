@@ -1043,3 +1043,53 @@ body[data-layout="notfound"] .tiles{margin-top:26px}
  .atl-tools.fopen .atl-chips{display:flex}
  .atl-panel.has-sel{max-height:42vh}
 }
+
+/* ---------- New Player Guide ---------- */
+.doc{counter-reset:st}
+.step{position:relative;padding:0 0 6px 56px}
+.step::before{content:"";position:absolute;left:19px;top:46px;bottom:-4px;border-left:2px dashed var(--bd)}
+.step:last-of-type::before{display:none}
+.step h2{counter-increment:st;margin-top:30px}
+.step h2::before{content:counter(st);position:absolute;left:-56px;top:-3px;display:grid;place-items:center;width:40px;height:40px;background:var(--g);color:var(--k);font:400 1.3rem var(--display);letter-spacing:0}
+.step h2 .anchor{display:none}
+.step-body{padding-bottom:10px}
+.reads{border:2px solid var(--bd);background:var(--pn);margin:0 0 14px;max-width:74ch}
+.read{display:flex;align-items:baseline;gap:6px 16px;flex-wrap:wrap;padding:11px 16px;text-decoration:none;color:var(--tx)}
+.read+.read{border-top:1px solid var(--bd)}
+.read b{font:400 1rem var(--display);text-transform:uppercase;color:var(--g);min-width:12.5em}
+.read span{flex:1;font-size:14.5px;color:var(--mu);min-width:12em}
+.read::after{content:"→";color:var(--mu);font:600 14px var(--mono)}
+.read:hover{background:var(--gl)}
+.read:hover::after{color:var(--g)}
+.read.go{background:var(--g)}
+.read.go b{color:var(--k)}
+.read.go span,.read.go::after{color:#0a3a2e}
+.read.go:hover{background:#5be8bd}
+.extra{max-width:74ch;margin:0 0 14px}
+.extra summary{cursor:pointer;padding:6px 0;font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--cy)}
+.extra .reads{margin:8px 0 0}
+.after{margin:30px 0 0}
+.after h2{margin-top:0}
+.finish{color:var(--mu)}
+@media(max-width:640px){
+  .step{padding-left:0}
+  .step::before{display:none}
+  .step h2{padding-left:52px;min-height:40px}
+  .step h2::before{left:0;top:-4px}
+  .read b{min-width:0;flex-basis:100%}
+  .read span{min-width:0}
+}
+
+/* ---------- Home hero: banner. Full-width art, centered title, one main action ---------- */
+.hero.home img{height:clamp(380px,46vw,560px);aspect-ratio:auto;max-height:none;object-position:70% 45%}
+.hero.home::after{background:radial-gradient(ellipse at 50% 42%,rgba(3,10,16,.35),rgba(3,10,16,.9) 75%),linear-gradient(0deg,var(--bg),transparent 35%)}
+.hero.home .hero-in{align-items:center;justify-content:center;text-align:center;padding:0 20px 8px}
+.hero.home h1{font-size:clamp(3.6rem,15vw,9rem);text-shadow:6px 6px 0 var(--sh)}
+.hero.home p{margin:16px auto 0;font-size:1.1rem}
+.hero-cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px 28px;margin-top:28px}
+.btn{display:inline-block;padding:12px 22px;border:2px solid var(--g);font:600 13px var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--g);box-shadow:4px 4px 0 var(--sh);transition:transform .12s,box-shadow .12s}
+.btn.primary{background:var(--g);color:var(--k)}
+.btn.primary:hover{background:#5be8bd;transform:translate(2px,2px);box-shadow:2px 2px 0 var(--sh)}
+.hero-link{font:600 13px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#fff;text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--g)}
+.hero-link:hover{color:var(--g)}
+@media(max-width:640px){.hero.home .hero-cta .btn{flex:1;text-align:center}}

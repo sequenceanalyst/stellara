@@ -29,7 +29,7 @@
   if (header) header.innerHTML = '<a class="skip" href="#main">Skip to content</a><header class="top"><div class="top-in"><a class="brand" href="' + ROOT + '">' + esc(S.name) + '</a>' +
     '<nav aria-label="Main"><ul class="menu">' + menu + '</ul></nav>' +
     '<div class="search"><input id="q" type="search" placeholder="Search the site" aria-label="Search the site" autocomplete="off"><ul id="qr" hidden></ul></div>' +
-    (S.discord ? '<a class="ext" href="' + esc(S.discord) + '" target="_blank" rel="noopener">Discord</a>' : '') + '</div></header>';
+    (S.discord ? '<a class="ext" href="' + esc(S.discord) + '" target="_blank" rel="noopener">Join Discord</a>' : '') + '</div></header>';
 
   /* hero */
   var hero = $('#site-hero');
@@ -39,7 +39,8 @@
     var heroImg = cur && cur.art ? ROOT + cur.art : ROOT + 'assets/banner.webp';
     var kindPill = cur && cur.layout === 'location' ? '<span class="kind">' + esc(cur.kind || (cur.parent === 'region/wilderness' ? 'Wilderness or landmark' : 'Place')) + '</span>' : '';
     hero.innerHTML = '<div class="hero' + (isHome ? ' home' : '') + (cur && cur.art ? ' has-art' : '') + '" id="top-of-page"><img src="' + heroImg + '" alt="" width="1920" height="1188"><div class="hero-in">' + kindPill +
-      (isHome ? '' : '<p class="crumb">' + crumb + '</p>') + '<h1>' + esc(title) + '</h1>' + (desc ? '<p>' + esc(desc) + '</p>' : '') + '</div></div>';
+      (isHome ? '' : '<p class="crumb">' + crumb + '</p>') + '<h1>' + esc(title) + '</h1>' + (desc ? '<p>' + esc(desc) + '</p>' : '') +
+      (isHome ? '<div class="hero-cta"><a class="btn primary" href="' + U('getting-started/new-player-guide') + '">Start the New Player Guide</a><a class="hero-link" href="#main">Browse the guide</a></div>' : '') + '</div></div>';
   }
 
   var main = $('#main');

@@ -5,7 +5,7 @@
 var SITE = {
  "name": "Stellara",
  "tagline": "Pokémon Stellara",
- "discord": "",
+ "discord": "https://discord.gg/Bg7cCrjK9a",
  "footer": "Stellara is a fan-made Pokémon roleplay. Pokémon is a trademark of Nintendo, Game Freak and Creatures. This site is not affiliated with them.",
  "home": {
   "lead": "An Original Pokemon RP."
@@ -72,6 +72,18 @@ var SITE = {
    "icon": "people",
    "heads": [
     "Team Crux in brief"
+   ]
+  },
+  {
+   "route": "getting-started/new-player-guide",
+   "title": "New Player Guide",
+   "parent": "getting-started",
+   "layout": "article",
+   "icon": "ladder",
+   "desc": "Five steps from reading about Stellara to submitting your first character.",
+   "related": [
+    "getting-started/character-creation",
+    "getting-started/starters"
    ]
   },
   {
