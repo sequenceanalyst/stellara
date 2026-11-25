@@ -553,6 +553,19 @@ var SITE = {
    "desc": "An interactive reference to the cities, towns, wilderness areas and landmarks of Stellara, with the points of interest found in each.",
    "related": [
     "region/settlements",
+    "region/wilderness",
+    "region/habitats"
+   ]
+  },
+  {
+   "route": "region/habitats",
+   "title": "Pokémon Habitats",
+   "parent": "region",
+   "layout": "article",
+   "icon": "ball",
+   "desc": "Find where each Pokémon type lives in Stellara, and which types turn up together.",
+   "related": [
+    "region/atlas",
     "region/wilderness"
    ]
   },
